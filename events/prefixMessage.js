@@ -23,6 +23,11 @@ module.exports = {
     const command = client.commands.get(commandName)
     if (!command) return
 
-    command.execute(message, args, client)
+    try{
+        await command.execute(message, args, client)
+    } catch (err) {
+        await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!");
+        return console.log(err);
+    }
   }
 }

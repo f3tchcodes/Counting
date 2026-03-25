@@ -51,6 +51,8 @@ module.exports = {
                 [community.current_count]
             );
 
+            const topUserFetch = await client.users.fetch(topUser.user_id);
+
             const embed = new EmbedBuilder()
                 .setTitle(`📊 ${message.guild.name} Stats`)
                 .setColor(0x4641D9)
@@ -70,7 +72,7 @@ module.exports = {
                     {
                         name: "Top User",
                         value: topUser
-                            ? `<@${topUser.user_id}> (${topUser.total_user_count})`
+                            ? `<@${topUserFetch.username}> (${topUser.total_user_count})`
                             : "None",
                         inline: true
                     },

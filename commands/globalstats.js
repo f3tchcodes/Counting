@@ -28,12 +28,24 @@ module.exports = {
             "SELECT COUNT(*) AS total FROM community_count"
         );
 
-        // top server
-        const [[topServer]] = await client.db.query(
-            `SELECT community_id, current_count
-             FROM community_count
-             ORDER BY current_count DESC
-             LIMIT 1`
+        // top server normal
+        const [[topServerNormal]] = await client.db.query(
+            `SELECT cc.community_id, cc.current_count
+            FROM community_count cc
+            JOIN community_settings cs ON cc.community_id = cs.community_id
+            WHERE cs.hardcore_toggle = 0
+            ORDER BY cc.current_count DESC
+            LIMIT 1`
+        );
+
+        // top server hardcore
+        const [[topServerHardcore]] = await client.db.query(
+            `SELECT cc.community_id, cc.current_count
+            FROM community_count cc
+            JOIN community_settings cs ON cc.community_id = cs.community_id
+            WHERE cs.hardcore_toggle = 1
+            ORDER BY cc.current_count DESC
+            LIMIT 1`
         );
 
         // top user globally
@@ -45,7 +57,10 @@ module.exports = {
              LIMIT 1`
         );
 
-        const guild = client.guilds.cache.get(topServer?.community_id);
+        const guild = client.guilds.cache.get(topServerNormal?.community_id);
+        const guildHardcore = client.guilds.cache.get(topServerHardcore?.community_id);
+
+        const topUserFetch = await client.users.fetch(topUser.user_id);
 
         const embed = new EmbedBuilder()
             .setTitle("🌍 Global Stats")
@@ -62,16 +77,23 @@ module.exports = {
                     inline: true
                 },
                 {
-                    name: "Top Community",
-                    value: topServer
-                        ? `${guild ? guild.name : "Unknown"} (${topServer.current_count})`
+                    name: "Top Community Normal",
+                    value: topServerNormal
+                        ? `${guild ? guild.name : "Unknown"} (${topServerNormal.current_count})`
+                        : "None",
+                    inline: false
+                },
+                {
+                    name: "Top Community Hardcore",
+                    value: topServerHardcore
+                        ? `${guildHardcore ? guildHardcore.name : "Unknown"} (${topServerHardcore.current_count})`
                         : "None",
                     inline: false
                 },
                 {
                     name: "Top User",
                     value: topUser
-                        ? `<@${topUser.user_id}> (${topUser.total})`
+                        ? `${topUserFetch.username} (${topUser.total})`
                         : "None",
                     inline: false
                 }

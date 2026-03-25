@@ -1,7 +1,6 @@
 require("dotenv").config();
 const { Events } = require("@fluxerjs/core");
 const mysql2 = require("mysql2/promise");
-const { GatewayPresenceUpdateData } = require("@fluxerjs/types");
 
 module.exports = {
   name: Events.Ready,
@@ -24,5 +23,22 @@ module.exports = {
     client.deletedByBot = new Set();
 
     console.log("Ready and connected to database!")
+
+    try {
+      const [rows] = await client.db.query(
+          "SELECT * FROM community_settings"
+      );
+
+      if (rows && rows.length > 0) {
+        for(const row of rows){
+          client.channels.send(row.channel_id, "✅ **The bot is back online! You can continue to count. Thank you for waiting!**")
+          const guild = client.guilds.cache.get(row.community_id);
+          console.log(`Sent message for: ${guild ? guild.name : row.community_id}`);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+    
   }
 };

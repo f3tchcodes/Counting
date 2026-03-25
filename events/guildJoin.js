@@ -23,11 +23,6 @@ module.exports = {
                 "INSERT INTO community_count (community_id, community_name, owner_id, owner_username) VALUES (?, ?, ?, ?)",
                 [guild.id, guild.name, ownerId, owner.username]
             );
-            
-            const channel = guild.systemChannel;
-            if (channel) {
-                await channel.send("Thanks for adding me! Type `.help` or `.setup` to get started!");
-            }
 
         } catch (error) {
             console.error("Database error during guild join:", error);

@@ -7,8 +7,6 @@ module.exports = {
 
         const client = message.client;
 
-        console.log(client.user.id)
-
         // get prefix
         const [rows] = await client.db.query(
             "SELECT prefix FROM community_settings WHERE community_id = ?",
