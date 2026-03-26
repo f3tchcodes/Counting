@@ -72,7 +72,7 @@ module.exports = {
                     {
                         name: "Top User",
                         value: topUser
-                            ? `<@${topUserFetch.username}> (${topUser.total_user_count})`
+                            ? `${topUserFetch.username} (${topUser.total_user_count})`
                             : "None",
                         inline: true
                     },

@@ -26,8 +26,6 @@ module.exports = {
 
             if (rowsSettings.length > 0) {
                 if (message.channel.id === settings.channel_id) {
-                    console.log(message.content)
-                    console.log(count.current_count)
                     if (Number(message.content) === Number(count.current_count) && !client.deletedByBot.has(message.id)) {
                         const channel = message.channel ?? await client.channels.fetch(message.channelId);
                         const user = await client.users.fetch(message.authorId);
@@ -40,12 +38,12 @@ Next count: **${count.current_count+1}**`);
                     }
                 }
             }
-        } catch(err){
-            console.error("Setup Error: ", err);
+        } catch (err) {
             try {
-                // await client.message.reply("Error occured, try fixing your bot's permissions, if it does not work try again later or contact the support server!");
+                console.log(err);
+                return await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!");
             } catch (err) {
-                console.log(err)
+                return console.log(err);
             }
         }
 

@@ -26,8 +26,12 @@ module.exports = {
     try{
         await command.execute(message, args, client)
     } catch (err) {
+      try {
         await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!");
         return console.log(err);
+      } catch (err) {
+        return console.log(err);
+      }
     }
   }
 }

@@ -4,9 +4,9 @@ module.exports = {
     name: Events.GuildCreate,
 
     async execute(client, guild) {
-        if (!client.db) return;
-
         try {
+            if (!client.db) return;
+            
             const [rows] = await client.db.query(
                 "SELECT community_id FROM community_count WHERE community_id = ?",
                 [guild.id]
