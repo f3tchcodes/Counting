@@ -7,7 +7,7 @@ module.exports = {
     async execute(client, message) {
         try {
             if (!message.guild) return;
-            if (message.author.bot) return;
+            if (message.author.bot || message.author.system) return;
             
             const [rowsSettings] = await client.db.query(
                 "SELECT * FROM community_settings WHERE community_id = ?",
@@ -64,28 +64,47 @@ module.exports = {
                 last_count_userid = count.last_count_userid;
 
                 const user = await client.users.fetch(message.author.id);
-                console.log(current_count)
-                console.log(number)
                 if (number === next_count) {
-                    await client.db.query(`
-                        UPDATE community_count
-                        SET current_count = ?,
-                        last_count_userid = ?
-                        WHERE community_id = ?;`,
-                        [next_count, message.author.id, message.guild.id]);
+                    const conn = await client.db.getConnection();
 
-                    await client.db.query(`
-                        INSERT INTO user_count (community_id, user_id, username, total_user_count)
-                        VALUES (?, ?, ?, 1)
-                        ON DUPLICATE KEY UPDATE
-                        total_user_count = total_user_count + 1,
-                        username = ?;
-                        `,
-                        [message.guild.id, message.author.id, user.username, user.username]);
+                    try {
+                        await conn.beginTransaction();
 
-                    await client.db.query("UPDATE global_stats SET total_count = total_count + 1 WHERE id = 1;")
+                        await conn.query(`
+                            UPDATE community_count
+                            SET current_count = current_count + 1,
+                                last_count_userid = ?
+                            WHERE community_id = ?;
+                        `, [message.author.id, message.guild.id]);
 
-                    return message.react("✅");
+                        await conn.query(`
+                            INSERT INTO user_count (community_id, user_id, username, total_user_count)
+                            VALUES (?, ?, ?, 1)
+                            ON DUPLICATE KEY UPDATE
+                                total_user_count = total_user_count + 1,
+                                username = ?;
+                        `, [message.guild.id, message.author.id, user.username, user.username]);
+
+                        await conn.query(`
+                            UPDATE global_stats 
+                            SET total_count = total_count + 1 
+                            WHERE id = 1;
+                        `);
+
+                        await conn.commit();
+
+                        return message.react("✅");
+
+                    } catch (err) {
+                        await conn.rollback();
+
+                        console.error("Transaction failed:", err);
+
+                        return await message.reply("❌ Something went wrong while updating the count. Please try again.");
+
+                    } finally {
+                        conn.release();
+                    }
                 } else {
                     if (settings.hardcore_toggle){
                         await client.db.query(`
@@ -121,7 +140,7 @@ module.exports = {
             }
         } catch (err) {
             console.log(err);
-            await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!").catch(console.log);
+            return await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!").catch(console.log);
         }
     }
 };
