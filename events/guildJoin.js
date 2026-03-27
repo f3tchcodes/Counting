@@ -2,7 +2,6 @@ const { Events } = require("@fluxerjs/core");
 
 module.exports = {
     name: Events.GuildCreate,
-
     async execute(client, guild) {
         try {
             if (!client.db) return;
@@ -14,7 +13,7 @@ module.exports = {
 
             if (rows.length > 0) return;
 
-            const ownerId = await guild.ownerId;
+            const ownerId = guild.ownerId;
             const owner = await client.users.fetch(ownerId);
 
             console.log(`New guild joined: ${guild.name} (${guild.id}) | Owner: ${owner.username} (${ownerId})`);
