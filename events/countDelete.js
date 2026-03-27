@@ -4,11 +4,8 @@ const math = require('mathjs');
 
 module.exports = {
     name: Events.MessageDelete,
-
     async execute(client, message) {
-
-        try{
-
+        try {
             console.log(message)
             
             const [rowsSettings] = await client.db.query(
@@ -24,29 +21,24 @@ module.exports = {
             const settings = rowsSettings[0];
             const count = rowsCount[0];
 
-            if (rowsSettings.length > 0) {
-                if (message.channel.id === settings.channel_id) {
-                    if (Number(message.content) === Number(count.current_count) && !client.deletedByBot.has(message.id)) {
-                        const channel = message.channel ?? await client.channels.fetch(message.channelId);
-                        const user = await client.users.fetch(message.authorId);
+            if (!settings) return;
 
-                        if (!channel) return;
-                            await channel.send(`⚠️ Count sent by the user **${user.username}** has been deleted! 
+            if (message.channel.id === settings.channel_id) {
+                if (Number(message.content) === Number(count.current_count) && !client.deletedByBot.has(message.id)) {
+                    const channel = message.channel ?? await client.channels.fetch(message.channelId);
+                    const user = await client.users.fetch(message.authorId);
+
+                    if (!channel) return;
+                        await channel.send(`⚠️ Count sent by the user **${user.username}** has been deleted! 
 Restoring: **${count.current_count}**
 Next count: **${count.current_count+1}**`);
-                            return client.deletedByBot.has(message.id)
-                    }
+                        return client.deletedByBot.has(message.id);
                 }
             }
         } catch (err) {
-            try {
-                console.log(err);
-                return await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!");
-            } catch (err) {
-                return console.log(err);
-            }
+            console.log(err);
+            await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!").catch(console.log);
         }
-
     }
 }
 
