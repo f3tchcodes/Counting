@@ -25,13 +25,13 @@ module.exports = {
             if (!settings) return;
 
             if (message.channel.id === settings.channel_id) {
-                if (Number(message.content) === Number(count.current_count) && !client.deletedByBot.has(message.id)) {
+                if (Number(math.evaluate(message.content)) === Number(count.current_count) && !client.deletedByBot.has(message.id)) {
                     const channel = message.channel ?? await client.channels.fetch(message.channelId);
                     const user = await client.users.fetch(message.authorId);
 
                     if (!channel) return;
                         await channel.send(`⚠️ Count sent by the user **${user.username}** has been deleted! 
-Restoring: **${count.current_count}**
+Restoring: **${message.content}**
 Next count: **${count.current_count+1}**`);
                         return client.deletedByBot.has(message.id);
                 }
