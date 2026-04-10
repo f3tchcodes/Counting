@@ -31,9 +31,13 @@ const shutdown = async () => {
 
       if (rows && rows.length > 0) {
         for (const row of rows) {
-          await client.channels.send(row.channel_id, "⚠️ **The bot will be offline for maintenance/updates. Halt counting!**")
-          const guild = client.guilds.cache.get(row.community_id);
-          console.log(`Sent message for: ${guild ? guild.name : row.community_id}`);
+          try {
+            await client.channels.send(row.channel_id, "⚠️ **The bot will be offline for maintenance/updates. Halt counting!**")
+            const guild = client.guilds.cache.get(row.community_id);
+            console.log(`Sent message for: ${guild ? guild.name : row.community_id}`);
+          } catch (err) {
+            console.log(err)
+          }
         }
       }
     } catch (err) {
