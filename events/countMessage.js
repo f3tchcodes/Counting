@@ -14,29 +14,26 @@ module.exports = {
                 [message.guild.id]
             );
 
-            const [rowsCount] = await client.db.query(
-                "SELECT * FROM community_count WHERE community_id = ?",
-                [message.guild.id]
-            );
-
             const settings = rowsSettings[0];
-            const count = rowsCount[0];
 
             if (!settings) return;
             if (message.channel.id !== settings.channel_id) return;
 
             if (settings.arithmetic_toggle) {
-                try {
-                    number = math.evaluate(message.content);
-                } catch (err) {
-                    number = Number(message.content);
-                }
+                number = await math.evaluate(message.content);
             } else {
                 number = Number(message.content);
             }
 
             if (!number && !settings.numbers_only_toggle) return;
             if (number && number != 0) {
+
+                const [rowsCount] = await client.db.query(
+                    "SELECT * FROM community_count WHERE community_id = ?",
+                    [message.guild.id]
+                );
+                
+                const count = rowsCount[0];
 
                 if (message.author.id === count.last_count_userid) {
                     if (settings.hardcore_toggle) {
