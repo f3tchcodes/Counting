@@ -31,9 +31,14 @@ module.exports = {
 
       if (rows && rows.length > 0) {
         for (const row of rows) {
-          await client.channels.send(row.channel_id, "✅ **The bot is back online! You can continue to count. Thank you for waiting!**")
-          const guild = client.guilds.cache.get(row.community_id);
-          console.log(`Sent message for: ${guild ? guild.name : row.community_id}`);
+          try {          
+            await client.channels.send(row.channel_id, "✅ **The bot is back online! You can continue to count. Thank you for waiting!**")
+            const guild = client.guilds.cache.get(row.community_id);
+            console.log(`Sent message for: ${guild ? guild.name : row.community_id}`);
+          } catch (err) {
+            console.log(`Error with this community: ${row.community_id}
+Error: ${err}`)
+          }
         }
       }
     } catch (err) {
