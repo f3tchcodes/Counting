@@ -25,7 +25,13 @@ module.exports = {
             if (!settings) return;
 
             if (message.channel.id === settings.channel_id) {
-                if (Number(math.evaluate(message.content)) === Number(count.current_count) && !client.deletedByBot.has(message.id)) {
+                let number;
+                try {
+                    number = await math.evaluate(message.content);
+                } catch (err) {
+                    number = Number(message.content);
+                }
+                if (number === Number(count.current_count) && !client.deletedByBot.has(message.id)) {
                     const channel = message.channel ?? await client.channels.fetch(message.channelId);
                     const user = await client.users.fetch(message.authorId);
 
