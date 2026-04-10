@@ -6,9 +6,6 @@ module.exports = {
     name: Events.MessageDelete,
     async execute(client, message) {
 
-        if (!message.guild) return;
-        if (message.author.bot || message.author.system) return;
-
         try {
             console.log(message)
             
