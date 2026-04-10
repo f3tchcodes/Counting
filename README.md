@@ -1,10 +1,23 @@
 ## Counting
 A Fluxer bot for counting in ascending order in your community. It has leaderboards, different game modes, and more!
 
+## Self-hosting
+```
+$ git clone https://github.com/f3tchcodes/Counting
+$ cd Counting
+$ cp .envTest .env
+$ nano .env # Fill this
+$ npm install
+$ node main.js
+```
+
 ## Run and invite
 Run with: `.help`
 
 [Invite me](https://web.fluxer.app/oauth2/authorize?client_id=1484113258352640042&scope=bot&permissions=76864) • [Support server](https://fluxer.gg/g7nnifVL)
+
+## MIT
+[MIT License](https://github.com/f3tchcodes/Counting/blob/main/LICENSE)
 
 ## Credits
 Made by f3tch#0000 on Fluxer.
