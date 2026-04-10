@@ -20,7 +20,7 @@ Run with: `.help`
 [MIT License](https://github.com/f3tchcodes/Counting/blob/main/LICENSE)
 
 ## Credits
-Made by f3tch#0000 on Fluxer.
+Made by f3tch#0001 on Fluxer.
 Here is my [linktree](https://linktr.ee/f3tchcodes)
 
 Thank you everyone!
