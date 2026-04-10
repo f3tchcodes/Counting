@@ -51,6 +51,7 @@ const shutdown = async () => {
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+process.on('stopProcessId', shutdown)
 
 
 client.login(process.env.FLUXER_BOT_TOKEN)
