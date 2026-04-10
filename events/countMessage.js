@@ -20,7 +20,11 @@ module.exports = {
             if (message.channel.id !== settings.channel_id) return;
 
             if (settings.arithmetic_toggle) {
-                number = await math.evaluate(message.content);
+                try {
+                    number = await math.evaluate(message.content);
+                } catch (err) {
+                    number = Number(message.content);
+                }
             } else {
                 number = Number(message.content);
             }
