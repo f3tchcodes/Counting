@@ -71,12 +71,27 @@ module.exports = {
                     try {
                         await conn.beginTransaction();
 
-                        await conn.query(`
+                        const [updateResult] = await conn.query(`
                             UPDATE community_count
                             SET current_count = current_count + 1,
                                 last_count_userid = ?
-                            WHERE community_id = ?;
-                        `, [message.author.id, message.guild.id]);
+                            WHERE community_id = ?
+                            AND current_count = ?;
+                        `, [message.author.id, message.guild.id, current_count]);
+
+                        if (updateResult.affectedRows === 0) {
+                            await conn.rollback();
+
+                            try {
+                                client.deletedByBot.add(message.id);
+                                await message.delete();
+                                console.log("already counted")
+                            } catch (err) {
+                                console.log(err);
+                            }
+
+                            return;
+                        }
 
                         await conn.query(`
                             INSERT INTO user_count (community_id, user_id, username, total_user_count)
