@@ -44,13 +44,16 @@ module.exports = {
                 } 
 
                 await message.send("```UPDATING...```")
-                const gitPullResult = await execAsync("git pull");
-                const resultFormated = Object.entries(gitPullResult);
+                let result = await execAsync("git pull", { timeout: 60000 })
+                            .catch(error => ({ stdout: null, stderr: error }));
+                let resultFormated = [result.stdout, result.stderr].join("\n");
+                if (resultFormated.length > 2000) return message.send("Output too long");
                 console.log(`RESULT: ${resultFormated}`);
-                await message.send(`\`\`\`${resultFormated}\`\`\``)
+                await message.send(`\`\`\`${resultFormated}\`\`\``);
 
                 await client.db.end();
                 console.log("Database closed. Goodbye!");
+                await message.send("Shutdown successful!");
                 process.exit(); // if you're not using pm2, this command would simply stop the bot rather than restarting
             } catch (err) {
                 await message.reply("Error occured while running the command");
@@ -61,17 +64,17 @@ module.exports = {
         if (args[0] === "execute") {
             try {
                 const command = args.slice(1).join(" ");
-                let result;
                 try {
-                    result = await execAsync(command);
+                    let result = await execAsync(command, { timeout: 60000 })
+                                .catch(error => ({ stdout: null, stderr: error }));
+                    let resultFormated = [result.stdout, result.stderr].join("\n");
+                    if (resultFormated.length > 2000) return message.send("Output too long");
+                    console.log(`COMMAND RAN: ${command}\nRESULT: ${resultFormated}`);
+                    await message.send(`\`\`\`${resultFormated}\`\`\``)
                 } catch (err) {
-                    await message.send(`The command \`${command}\` either does not exist or could not be run.`);
+                    await message.send(`The command \`${command}\` does not exist.`);
                     return console.log(err)
                 }
-
-                const resultFormated = Object.entries(result);
-                console.log(`COMMAND RAN: ${command}\nRESULT: ${resultFormated}`);
-                await message.send(`\`\`\`${resultFormated}\`\`\``)
             } catch (err) {
                 await message.reply("Error occured. The command could not run!")
                 console.log(err)

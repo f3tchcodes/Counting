@@ -101,13 +101,13 @@ module.exports = {
                 timestamp: new Date()
             };
 
-            await message.reply({ embeds: [embed] });
+            await message.send({ embeds: [embed] });
 
         } catch (err) {
             console.error("UserStats Error:", err);
 
             try {
-                await message.reply("Failed to fetch stats. Try again later.");
+                await message.send("Failed to fetch stats. Try again later.");
             } catch (err) {
                 console.log(err);
             }

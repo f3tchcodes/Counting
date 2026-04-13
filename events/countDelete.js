@@ -6,9 +6,7 @@ module.exports = {
     name: Events.MessageDelete,
     async execute(client, message) {
 
-        try {
-            console.log(message)
-            
+        try {            
             const [rowsSettings] = await client.db.query(
                 "SELECT * FROM community_settings WHERE community_id = ?",
                 [message.channel.guildId]
