@@ -5,14 +5,17 @@
 
 */
 
-const { execSync } = require('child_process');
+const { promisify } = require("util");
+const { exec } = require("child_process");
+
+const execAsync = promisify(exec);
 
 module.exports = {
     name: "dev",
 
     async execute(message, args) {
         const client = message.client;
-        if (!message.author.id != process.env.OWNERID) return;
+        if (message.author.id !== process.env.OWNERID) return;
 
         if (args[0] === "update") {
             await message.send("SHUTTING DOWN THE BOT...");
@@ -41,8 +44,10 @@ module.exports = {
                 } 
 
                 await message.send("```UPDATING...```")
-                const gitPullResult = execSync("git pull");
-                await message.send(`\`\`\`${gitPullResult}\`\`\``);
+                const gitPullResult = await execAsync("git pull");
+                const resultFormated = Object.entries(gitPullResult);
+                console.log(`RESULT: ${resultFormated}`);
+                await message.send(`\`\`\`${resultFormated}\`\`\``)
 
                 await client.db.end();
                 console.log("Database closed. Goodbye!");
@@ -58,13 +63,15 @@ module.exports = {
                 const command = args.slice(1).join(" ");
                 let result;
                 try {
-                    result = execSync(command);
+                    result = await execAsync(command);
                 } catch (err) {
                     await message.send(`The command \`${command}\` either does not exist or could not be run.`);
                     return console.log(err)
                 }
-                console.log(`COMMAND RAN: ${command}\nRESULT: ${result}`);
-                await message.send(`\`\`\`${result}\`\`\``)
+
+                const resultFormated = Object.entries(result);
+                console.log(`COMMAND RAN: ${command}\nRESULT: ${resultFormated}`);
+                await message.send(`\`\`\`${resultFormated}\`\`\``)
             } catch (err) {
                 await message.reply("Error occured. The command could not run!")
                 console.log(err)
