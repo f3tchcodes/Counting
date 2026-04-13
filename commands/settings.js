@@ -43,7 +43,7 @@ module.exports = {
                     { name: "🤖 Prefix", value: `${settings?.prefix ?? process.env.PREFIX}`, inline: false }
                     )
                     .setFooter({ text: `Community ID: ${settings.community_id}` })
-                    .setTimestamp();
+                    .setTimestamp(new Date());
 
                 await message.send({ embeds: [settingsEmbed] });
 
@@ -208,7 +208,7 @@ If you wish to continue, please type \`${settings?.prefix ?? process.env.PREFIX}
                     { name: "🤖 Prefix", value: `\`${settings?.prefix ?? process.env.PREFIX}settings prefix <prefix>\` - Set a new prefix`, inline: false }
                     )
                     .setFooter({ text: `Community ID: ${settings.community_id}` })
-                    .setTimestamp();
+                    .setTimestamp( new Date() );
 
                 await message.send({ embeds: [settingsEmbed] });
 

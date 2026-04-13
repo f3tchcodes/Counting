@@ -40,7 +40,9 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setTitle("🌍 Global Community Leaderboard")
                 .setDescription(description)
-                .setColor(0x4641D9);
+                .setColor(0x4641D9)
+                .setFooter({ text: `Requested by ${message.author.username}` })
+                .setTimestamp( new Date() );
 
             return message.send({ embeds: [embed] });
         }
@@ -65,7 +67,9 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setTitle("🔥 Hardcore Leaderboard")
                 .setDescription(description)
-                .setColor(0xFF4500);
+                .setColor(0xFF4500)
+                .setFooter({ text: `Requested by ${message.author.username}` })
+                .setTimestamp( new Date() );
 
             return message.send({ embeds: [embed] });
         }
@@ -90,7 +94,9 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setTitle(`🏆 ${message.guild.name} Leaderboard`)
                 .setDescription(description)
-                .setColor(0x4641D9);
+                .setColor(0x4641D9)
+                .setFooter({ text: `Requested by ${message.author.username}` })
+                .setTimestamp( new Date() );
 
             return message.send({ embeds: [embed] });
         }
@@ -114,7 +120,9 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setTitle("🌍 Global User Leaderboard")
                 .setDescription(description)
-                .setColor(0x4641D9);
+                .setColor(0x4641D9)
+                .setFooter({ text: `Requested by ${message.author.username}` })
+                .setTimestamp( new Date() );
 
             return message.send({ embeds: [embed] });
         }

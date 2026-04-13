@@ -121,7 +121,7 @@ module.exports = {
                     }
                 )
                 .setFooter({ text: `Community ID: ${communityId}` })
-                .setTimestamp();
+                .setTimestamp( new Date() );
 
             await message.send({ embeds: [embed] });
         } catch(err) {
