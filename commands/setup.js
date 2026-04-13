@@ -77,7 +77,7 @@ Use \`${rows0[0]?.prefix ?? "."}settings channel <ID/#channel>\` to change the c
                 { name: "🤖 Prefix", value: `${settings?.prefix ?? process.env.PREFIX}`, inline: false }
                 )
                 .setFooter({ text: `Community ID: ${settings.community_id}` })
-                .setTimestamp();
+                .setTimestamp( new Date() );
 
             await message.send({ embeds: [settingsEmbed] });
 

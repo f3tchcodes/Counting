@@ -17,7 +17,7 @@ module.exports = {
         if (message.author.id === process.env.OWNERID) {
             if (args[0] === "update") {
                 await message.send("SHUTTING DOWN THE BOT...");
-                
+
                 try {
                     console.log("Shutting down, waiting for all messages to be sent!");
 

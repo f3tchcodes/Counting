@@ -97,7 +97,9 @@ module.exports = {
                         : "None",
                     inline: false
                 }
-            );
+            )
+            .setFooter({ text: `Requested by ${message.author.username}` })
+            .setTimestamp( new Date() );
 
         await message.send({ embeds: [embed] });
     }
