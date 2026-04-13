@@ -73,6 +73,9 @@ View stats for this community
 \`${prefix}globalstats\`
 View global bot statistics
 
+\`${prefix}userstats\`
+View user's statistics
+
 ------------------------------------
 
 ℹ️ **Other**
