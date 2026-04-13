@@ -8,7 +8,7 @@ A Fluxer bot for counting in ascending order in your community. It has leaderboa
 ```
 $ git clone https://github.com/f3tchcodes/Counting
 $ cd Counting
-$ cp .envTest .env
+$ cp .env.example .env
 $ nano .env # Fill this
 $ npm install
 $ node main.js
