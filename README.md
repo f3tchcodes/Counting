@@ -20,6 +20,9 @@ Run with: `.help`
 
 [Invite me](https://web.fluxer.app/oauth2/authorize?client_id=1484113258352640042&scope=bot&permissions=76864) • [Support server](https://fluxer.gg/g7nnifVL)
 
+## Dev commands
+`.dev update` // Restarts the bot in order to update - if you're not using pm2, it will simply stop the bot.
+`.dev execute <command>` // Executes a command in the terminal
 
 ## MIT
 [MIT License](https://github.com/f3tchcodes/Counting/blob/main/LICENSE)

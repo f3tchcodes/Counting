@@ -136,9 +136,9 @@ Use \`${settings?.prefix ?? process.env.PREFIX}lb com\` or \`${settings?.prefix 
                 );
 
                 if (toggle){
-                    message.send(`Number Only Mode has been enabled! Any text that is not a number will be deleted (or reset the count if **hardcore mode** is **enabled**).`)
+                    message.send(`Numbers Only Mode has been enabled! Any text that is not a number will be deleted (or reset the count if **hardcore mode** is **enabled**).`)
                 } else {
-                    message.send(`Number Only Mode has been disabled! Texting while counting is allowed.`)
+                    message.send(`Numbers Only Mode has been disabled! Texting while counting is allowed.`)
                 }
 
             } else if (args[0] === "hardcore" && (args[1] === "enable" || args[1] === "disable")) {
