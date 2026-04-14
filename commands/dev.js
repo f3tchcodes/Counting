@@ -65,6 +65,11 @@ module.exports = {
 
         if (args[0] === "shutdown") {
             try {
+
+                
+                console.log("Sending shutdown messages to all communities...");
+                await message.send("Sending shutdown messages to all communities...");
+
                 const [rows] = await client.db.query(
                     "SELECT * FROM community_settings"
                 );
@@ -94,8 +99,7 @@ module.exports = {
 
             try {
                 console.log("Shutting down the bot...");
-                message.send("Shutting down the bot...");
-
+                await message.send("Shutting down the bot...");
                 return shutdown();
             } catch (err) {
                 message.send("Error occured while shutting down! Shutdown failed.");
