@@ -23,8 +23,16 @@ module.exports = {
     client.deletedByBot = new Set();
 
     console.log("Ready and connected to database!")
+    
 
     try {
+
+      const [[flag]] = await client.db.query(
+        `SELECT * FROM bot_settings WHERE id = 1`
+      )
+      console.log(flag.startup_msg_flag)
+      if (!flag.startup_msg_flag) return;
+
       const [rows] = await client.db.query(
           "SELECT * FROM community_settings"
       );
@@ -41,6 +49,15 @@ Error: ${err}`)
           }
         }
       }
+
+      // update flag to 0 so we don't send the message at every update (updating flag to 1 when we use .dev shutdown)
+      await client.db.query(`
+        INSERT INTO bot_settings (id, startup_msg_flag)
+        VALUES (1, 0)
+        ON DUPLICATE KEY UPDATE
+        startup_msg_flag = 0;
+      `);
+
     } catch (err) {
       console.log(err);
     } 
