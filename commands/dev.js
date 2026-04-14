@@ -93,7 +93,7 @@ module.exports = {
             `);
 
             try {
-                return shutdown();
+                return shutdown(message);
             } catch (err) {
                 console.log(err);
                 process.exit();
