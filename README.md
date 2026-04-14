@@ -4,7 +4,13 @@ A Fluxer bot for counting in ascending order in your community. It has leaderboa
 <img width="1045" height="633" alt="Counting Bot Images" src="https://github.com/user-attachments/assets/0c4d8787-ab1d-4879-b7c6-24915fe1acc8" />
 
 
-## Self-hosting
+## Run and invite
+Run with: `.help`
+
+[Invite me](https://web.fluxer.app/oauth2/authorize?client_id=1484113258352640042&scope=bot&permissions=76864) • [Support server](https://fluxer.gg/g7nnifVL)
+
+
+## Getting started
 ```
 $ git clone https://github.com/f3tchcodes/Counting
 $ cd Counting
@@ -15,14 +21,10 @@ $ node main.js
 ```
 
 
-## Run and invite
-Run with: `.help`
-
-[Invite me](https://web.fluxer.app/oauth2/authorize?client_id=1484113258352640042&scope=bot&permissions=76864) • [Support server](https://fluxer.gg/g7nnifVL)
-
 ## Dev commands
+- `.dev execute <command>` - Shutdowns the bot and informs all communities about the maintenance.
 - `.dev update` - Pulls updates from Github and restarts the bot in order to update - if you're not using pm2, it will simply stop the bot.
-- `.dev execute <command>` - Executes a command in the terminal
+- `.dev execute <command>` - Executes a command in the terminal.
 
 
 ## MIT
