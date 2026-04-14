@@ -93,8 +93,12 @@ module.exports = {
             `);
 
             try {
-                return shutdown(message);
+                console.log("Shutting down the bot...");
+                message.send("Shutting down the bot...");
+
+                return shutdown();
             } catch (err) {
+                message.send("Error occured while shutting down! Shutdown failed.");
                 console.log(err);
                 process.exit();
             }
