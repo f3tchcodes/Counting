@@ -22,7 +22,7 @@ $ node main.js
 
 
 ## Dev commands
-- `.dev execute <command>` - Shutdowns the bot and informs all communities about the maintenance.
+- `.dev shutdown` - Shutdowns the bot and informs all communities about the maintenance.
 - `.dev update` - Pulls updates from Github and restarts the bot in order to update - if you're not using pm2, it will simply stop the bot.
 - `.dev execute <command>` - Executes a command in the terminal.
 
