@@ -8,12 +8,18 @@ async function shutdown() {
                 process.exit(1)
             }
 
-            const pmId = process.env.pm_id;
+            try {
+                const pmId = process.env.pm_id;
 
-            pm2.stop(pmId, (stopErr) => {
-                if (stopErr) return console.log(stopErr);
-                pm2.disconnect();
-            });
+                pm2.stop(pmId, (stopErr) => {
+                    if (stopErr) return console.log(stopErr);
+                    pm2.disconnect();
+                });
+            } catch (err) {
+                console.log("no worries brother, i caught it!")
+                console.log(err);
+                process.exit(1)
+            }
         });
     } catch (err) {
         console.log(err);
