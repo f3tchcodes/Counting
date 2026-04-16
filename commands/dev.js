@@ -1,14 +1,17 @@
 /*
 
+    .dev shutdown
     .dev update
-    .dev execute
+    .dev execute <command>
+    .dev announce <message>
 
 */
 
 const { promisify } = require("util");
 const { exec } = require("child_process");
 
-const { shutdown } = require("../utils/shutdown")
+const { shutdown } = require("../utils/shutdown");
+const { announce } = require("../utils/announce");
 
 const execAsync = promisify(exec);
 
@@ -38,7 +41,7 @@ module.exports = {
                 await message.send("Shutdown successful!");
                 process.exit(); // if you're not using pm2, this command would simply stop the bot rather than restarting
             } catch (err) {
-                await message.reply("Error occured while running the command");
+                await message.reply("Error occured while running the command.");
                 return console.log(err);
             }
         }
@@ -46,48 +49,23 @@ module.exports = {
         if (args[0] === "execute") {
             try {
                 const command = args.slice(1).join(" ");
-                try {
-                    let result = await execAsync(command, { timeout: 60000 })
-                                .catch(error => ({ stdout: null, stderr: error }));
-                    let resultFormated = [result.stdout, result.stderr].join("\n");
-                    if (resultFormated.length > 2000) return message.send("Output too long");
-                    console.log(`COMMAND RAN: ${command}\nRESULT: ${resultFormated}`);
-                    await message.send(`\`\`\`${resultFormated}\`\`\``)
-                } catch (err) {
-                    await message.send(`The command \`${command}\` does not exist.`);
-                    return console.log(err)
-                }
+                let result = await execAsync(command, { timeout: 60000 })
+                            .catch(error => ({ stdout: null, stderr: error }));
+                let resultFormated = [result.stdout, result.stderr].join("\n");
+                if (resultFormated.length > 2000) return message.send("Output too long");
+                console.log(`COMMAND RAN: ${command}\nRESULT: ${resultFormated}`);
+                await message.send(`\`\`\`${resultFormated}\`\`\``)
             } catch (err) {
-                await message.reply("Error occured. The command could not run!")
+                await message.reply("Error occured while running the command.")
                 console.log(err)
             }
         }
 
         if (args[0] === "shutdown") {
-            try {
+            console.log("Sending shutdown messages to all communities...");
+            await message.send("Sending shutdown messages to all communities...");
 
-                
-                console.log("Sending shutdown messages to all communities...");
-                await message.send("Sending shutdown messages to all communities...");
-
-                const [rows] = await client.db.query(
-                    "SELECT * FROM community_settings"
-                );
-
-                if (rows && rows.length > 0) {
-                    for (const row of rows) {
-                        try {
-                            await client.channels.send(row.channel_id, "⚠️ **The bot will be offline for maintenance/updates. Halt counting!**")
-                            const guild = client.guilds.cache.get(row.community_id);
-                            console.log(`Sent message for: ${guild ? guild.name : row.community_id}`);
-                        } catch (err) {
-                            console.log(err)
-                        }
-                    }
-                }
-            } catch (err) {
-                console.log(err);
-            }
+            await announce(client, "⚠️ **The bot will be offline for maintenance/updates. Halt counting!**");
 
             // updating flag to 1 so the next time we start the bot, it sends start up message
             await client.db.query(`
@@ -104,9 +82,13 @@ module.exports = {
             } catch (err) {
                 message.send("Error occured while shutting down! Shutdown failed.");
                 console.log(err);
-                process.exit();
+                process.exit(1);
             }
         }
 
+        if (args[0] === "announce") {
+            const message = args.slice(1).join(" ");
+            await announce(client, message);
+        }
     }
 }
