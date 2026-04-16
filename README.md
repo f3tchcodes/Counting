@@ -25,6 +25,7 @@ $ node main.js
 - `.dev shutdown` - Shutdowns the bot and informs all communities about the maintenance.
 - `.dev update` - Pulls updates from Github and restarts the bot in order to update - if you're not using pm2, it will simply stop the bot.
 - `.dev execute <command>` - Executes a command in the terminal.
+- `.dev announce <message>` - Announces a message in all counting channels.
 
 
 ## MIT
