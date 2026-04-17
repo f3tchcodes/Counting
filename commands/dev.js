@@ -89,6 +89,7 @@ module.exports = {
         if (args[0] === "announce") {
             const messageArr = args.slice(1);
             const message = messageArr.map(word => word === "\\n" ? "\n" : word).join("")
+            console.log(args.slice(1))
 
             await announce(client, message);
         }

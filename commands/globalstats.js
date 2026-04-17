@@ -57,6 +57,12 @@ module.exports = {
              LIMIT 1`
         );
 
+        // total distinct users that have ever counted
+        const [[totalUsers]] = await client.db.query(
+            `SELECT COUNT(DISTINCT user_id) AS total FROM user_count;`
+        );
+
+        // setup
         const guild = client.guilds.cache.get(topServerNormal?.community_id);
         const guildHardcore = client.guilds.cache.get(topServerHardcore?.community_id);
 
@@ -74,6 +80,11 @@ module.exports = {
                 {
                     name: "Total Communities",
                     value: `${servers.total}`,
+                    inline: true
+                },
+                {
+                    name: "Total Users",
+                    value: `${totalUsers.total}`,
                     inline: true
                 },
                 {
