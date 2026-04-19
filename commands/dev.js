@@ -18,7 +18,7 @@ const execAsync = promisify(exec);
 module.exports = {
     name: "dev",
 
-    async execute(message, args) {
+    async execute(message, args, argsS) {
         const client = message.client;
         if (message.author.id !== process.env.OWNERID) return;
 
@@ -87,11 +87,14 @@ module.exports = {
         }
 
         if (args[0] === "announce") {
-            const messageArr = args.slice(1);
-            const message = messageArr.map(word => word === "\\n" ? "\n" : word).join("")
-            console.log(args.slice(1))
+            const [[rowSettings]] = await client.db.query(`
+                SELECT * FROM community_settings WHERE community_id = ?;
+                `, message.guild.id);
 
-            await announce(client, message);
+            const messageTemplate = argsS.slice(1).join("");
+            const messageA = messageTemplate.replace("<prefix>", rowSettings.prefix);
+
+            await announce(client, messageA);
         }
     }
 }
