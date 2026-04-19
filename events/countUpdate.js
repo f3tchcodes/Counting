@@ -40,6 +40,7 @@ module.exports = {
                     await channel.send(`⚠️ Count sent by the user **${user.username}** has been edited! 
 Restoring: **${oldContent}**
 Next count: **${count.current_count+1}**`);
+                    client.messageCache.delete(newMessage.id);
                 }
             }
         } catch (err) {
