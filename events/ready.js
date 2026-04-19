@@ -22,6 +22,7 @@ module.exports = {
     }
     
     client.deletedByBot = new Set();
+    client.messageCache = new Map();
 
     console.log("Ready and connected to database!")
 

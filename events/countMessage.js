@@ -109,6 +109,7 @@ module.exports = {
 
                         await conn.commit();
 
+                        client.messageCache.set(message.id, message.content);
                         return message.react("✅");
 
                     } catch (err) {
