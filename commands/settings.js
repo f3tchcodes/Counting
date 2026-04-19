@@ -40,6 +40,7 @@ module.exports = {
                     { name: "🏆 Leaderboard", value: settings.leaderboard_toggle ? "✅ Enabled" : "❌ Disabled", inline: false },
                     { name: "🔢 Numbers Only Mode", value: settings.numbers_only_toggle ? "✅ Enabled" : "❌ Disabled", inline: false },
                     { name: "🔥 Hardcore Mode", value: settings.hardcore_toggle ? "✅ Enabled" : "❌ Disabled", inline: false },
+                    { name: "🤖 Bot Updates Channel", value: `<#${settings.update_channel_id}>`, inline: false },
                     { name: "🤖 Prefix", value: `${settings?.prefix ?? process.env.PREFIX}`, inline: false }
                     )
                     .setFooter({ text: `Community ID: ${settings.community_id}` })
@@ -76,6 +77,36 @@ module.exports = {
 
                 await targetChannel.send(`📢 <#${newSettings.channel_id}> has been set as the counting channel for this community!`);
                 await message.send(`Counting channel set to: <#${newSettings.channel_id}>`);
+
+            } else if (args[0] === "updatechannel" && args[1]) {
+
+                const channelId = args[1].replace(/[<#>]/g, '');
+                const targetChannel = message.guild.channels.get(channelId);
+
+                if (!targetChannel || !targetChannel.isTextBased()) {
+                    return message.send("Please provide a valid text channel in this community!");
+                }
+
+                if (args[1] === settings.update_channel_id){
+                    return message.send(`Bot updates channel is already: <#${args[1]}>`);
+                }
+
+                await client.db.query(
+                    `UPDATE community_settings
+                    SET update_channel_id = ?
+                    WHERE community_id = ?;`,
+                    [targetChannel.id, message.guild.id]
+                );
+
+                const [rows0] = await client.db.query(
+                    "SELECT * FROM community_settings WHERE community_id = ?",
+                    [message.guild.id]
+                );
+
+                const newSettings = rows0[0];
+
+                await targetChannel.send(`📢 <#${newSettings.update_channel_id}> has been set as the bot updates channel for this community!`);
+                await message.send(`Bot updates channel set to: <#${newSettings.update_channel_id}>`);
 
             } else if (args[0] === "arithmetic" && (args[1] === "enable" || args[1] === "disable")){
 
@@ -190,7 +221,7 @@ If you wish to continue, please type \`${settings?.prefix ?? process.env.PREFIX}
                         WHERE community_id = ?;`,
                         [args[1], message.guild.id]);
 
-                return await message.send(`The prefix has successfully been set to ${args[1]}`);
+                return await message.send(`The prefix has successfully been set to \`${args[1]}\``);
             } else {
 
                 const settingsEmbed = new EmbedBuilder()
@@ -205,6 +236,7 @@ If you wish to continue, please type \`${settings?.prefix ?? process.env.PREFIX}
                     { name: "🔢 Numbers Only Mode", value: `\`${settings?.prefix ?? process.env.PREFIX}settings numbersonly <disable/enable>\` - Toggle chat while counting`, inline: false },
                     { name: "🔥 Hardcore Mode", value: `\`${settings?.prefix ?? process.env.PREFIX}settings hardcore <disable/enable>\` - Toggle reset at incorrect number (must be 0 to initiate)`, inline: false },
                     { name: "0️⃣ Reset Count", value: `\`${settings?.prefix ?? process.env.PREFIX}settings reset\` - Reset the counter`, inline: false },
+                    { name: "🤖 Bot Updates Channel", value: `\`${settings?.prefix ?? process.env.PREFIX}settings updatechannel <ID/#channel>\` - Change the bot updates channel`, inline: false },
                     { name: "🤖 Prefix", value: `\`${settings?.prefix ?? process.env.PREFIX}settings prefix <prefix>\` - Set a new prefix`, inline: false }
                     )
                     .setFooter({ text: `Community ID: ${settings.community_id}` })

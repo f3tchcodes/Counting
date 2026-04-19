@@ -36,7 +36,6 @@ Usage: \`${settings?.prefix ?? process.env.PREFIX}setup <ID/#channel>\``);
             );
 
             if(rows0.length > 0){
-                console.log(channelId)
                 console.log(rows0[0].channel_id)
 
                 if(rows0[0].channel_id){
@@ -46,13 +45,14 @@ Use \`${rows0[0]?.prefix ?? "."}settings channel <ID/#channel>\` to change the c
             }
 
             await client.db.query(
-                `INSERT INTO community_settings (community_id, channel_id, arithmetic_toggle, leaderboard_toggle) 
-                VALUES (?, ?, false, false)
+                `INSERT INTO community_settings (community_id, channel_id, update_channel_id, arithmetic_toggle, leaderboard_toggle) 
+                VALUES (?, ?, ?, false, false)
                 ON DUPLICATE KEY UPDATE 
-                channel_id = VALUES(channel_id), 
+                channel_id = VALUES(channel_id),
+                update_channel_id = VALUES(channel_id),
                 arithmetic_toggle = false, 
                 leaderboard_toggle = false`,
-                [message.guild.id, targetChannel.id]
+                [message.guild.id, targetChannel.id, targetChannel.id]
             );
 
             const [rows] = await client.db.query(
@@ -74,6 +74,7 @@ Use \`${rows0[0]?.prefix ?? "."}settings channel <ID/#channel>\` to change the c
                 { name: "🏆 Leaderboard", value: settings.leaderboard_toggle ? "✅ Enabled" : "❌ Disabled", inline: false },
                 { name: "🔢 Numbers Only Mode", value: settings.numbers_only_toggle ? "✅ Enabled" : "❌ Disabled", inline: false },
                 { name: "🔥 Hardcore Mode", value: settings.hardcore_toggle ? "✅ Enabled" : "❌ Disabled", inline: false },
+                { name: "🤖 Bot Updates Channel", value: `<#${settings.update_channel_id}>`, inline: false },
                 { name: "🤖 Prefix", value: `${settings?.prefix ?? process.env.PREFIX}`, inline: false }
                 )
                 .setFooter({ text: `Community ID: ${settings.community_id}` })
