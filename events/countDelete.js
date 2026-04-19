@@ -34,10 +34,10 @@ module.exports = {
                     const user = await client.users.fetch(message.authorId);
 
                     if (!channel) return;
-                        await channel.send(`⚠️ Count sent by the user **${user.username}** has been deleted! 
+                    await channel.send(`⚠️ Count sent by the user **${user.username}** has been deleted! 
 Restoring: **${message.content}**
 Next count: **${count.current_count+1}**`);
-                        return client.deletedByBot.has(message.id);
+                    return client.deletedByBot.has(message.id);
                 }
             }
         } catch (err) {
