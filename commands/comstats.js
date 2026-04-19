@@ -52,7 +52,7 @@ module.exports = {
             );
 
             const topUserFetch = await client.users.fetch(topUser.user_id);
-
+            
             const embed = new EmbedBuilder()
                 .setTitle(`📊 ${message.guild.name} Stats`)
                 .setColor(0x4641D9)
