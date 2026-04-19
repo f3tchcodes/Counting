@@ -16,14 +16,17 @@ module.exports = {
 
     if (!message.content.startsWith(prefix)) return;
 
-    const args = message.content.slice(prefix.length).trim().split(/\s+/);
+    const A_args = message.content.slice(prefix.length).trim()
+    const argsS = A_args.split(/(?<=\s)/);
+    argsS.shift();
+    const args = A_args.split(/\s+/);
     const commandName = args.shift().toLowerCase();
 
     const command = client.commands.get(commandName)
     if (!command) return;
 
     try {
-        await command.execute(message, args, client);
+        await command.execute(message, args, argsS, client);
     } catch (err) {
         await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!").catch(console.log);
         console.log(err);
