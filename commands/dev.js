@@ -26,8 +26,6 @@ module.exports = {
             await message.send("SHUTTING DOWN THE BOT...");
 
             try {
-                console.log("Shutting down, waiting for all messages to be sent!");
-
                 await message.send("```UPDATING...```")
                 let result = await execAsync("git pull && npm install", { timeout: 60000 })
                             .catch(error => ({ stdout: null, stderr: error }));
