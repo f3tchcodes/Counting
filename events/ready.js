@@ -2,6 +2,7 @@ require("dotenv").config();
 const { Events } = require("@fluxerjs/core");
 const mysql2 = require("mysql2/promise");
 const { announce } = require("../utils/announce");
+const { pushPresenceUpdate } = require("../main");
 
 module.exports = {
   name: Events.Ready,
@@ -23,6 +24,19 @@ module.exports = {
     
     client.deletedByBot = new Set();
     client.messageCache = new Map();
+
+    async function guildSize() {
+      const [[guildSize]] = await client.db.query("SELECT COUNT(*) FROM community_count;")
+      return guildSize["COUNT(*)"];
+    }
+
+    BOT_PRESENCE = {
+        status: "online",
+        custom_status: {
+            text: `Counting in ${await guildSize()} communities!`
+        }
+    }
+    pushPresenceUpdate(BOT_PRESENCE)
 
     console.log("Ready and connected to database!")
 
