@@ -2,12 +2,14 @@ require("dotenv").config();
 const { Events } = require("@fluxerjs/core");
 const mysql2 = require("mysql2/promise");
 const { announce } = require("../utils/announce");
-const { pushPresenceUpdate } = require("../main");
+const { pushPresenceUpdate } = require("../utils/pushPresenceUpdate");
+const { guildSize } = require("../utils/guildSize");
 
 module.exports = {
   name: Events.Ready,
   async execute(client) {
 
+    /* DATABASE CONNECTION */
     try {
       client.db = mysql2.createPool({
         host: process.env.DB_HOST,
@@ -22,24 +24,24 @@ module.exports = {
       console.log(err)
     }
     
+    /* DELETE AND EDIT LOGS */
     client.deletedByBot = new Set();
     client.messageCache = new Map();
 
-    async function guildSize() {
-      const [[guildSize]] = await client.db.query("SELECT COUNT(*) FROM community_count;")
-      return guildSize["COUNT(*)"];
-    }
-
+    /* PRESENCE UPDATE */
     BOT_PRESENCE = {
         status: "online",
         custom_status: {
-            text: `Counting in ${await guildSize()} communities!`
+            text: `Counting in ${await guildSize(client)} communities!`
         }
     }
-    pushPresenceUpdate(BOT_PRESENCE)
 
+    pushPresenceUpdate(client, BOT_PRESENCE)
+
+    /* CONNECTION DONE */
     console.log("Ready and connected to database!")
 
+    /* SEND ONLINE MESSAGE IF SHUTDOWN COMMAND IS USED TO SHUT THE BOT DOWN */
     try {
       const [[flag]] = await client.db.query(
         `SELECT * FROM bot_settings WHERE id = 1`
