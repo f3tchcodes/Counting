@@ -26,8 +26,9 @@ module.exports = {
             await message.send("SHUTTING DOWN THE BOT...");
 
             try {
+                const command = "git pull && npm install";
                 await message.send("```UPDATING...```")
-                let result = await execAsync("git pull && npm install", { timeout: 60000 })
+                let result = await execAsync(command, { timeout: 60000 })
                             .catch(error => ({ stdout: null, stderr: error }));
                 let resultFormated = [result.stdout, result.stderr].join("\n");
                 if (resultFormated.length > 2000) return message.send("Output too long");
