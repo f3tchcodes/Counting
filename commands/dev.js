@@ -31,7 +31,7 @@ module.exports = {
                             .catch(error => ({ stdout: null, stderr: error }));
                 let resultFormated = [result.stdout, result.stderr].join("\n");
                 if (resultFormated.length > 2000) return message.send("Output too long");
-                console.log(`RESULT: ${resultFormated}`);
+                console.log(`COMMAND RAN: ${command}\nRESULT: ${resultFormated}`);
                 await message.send(`\`\`\`${resultFormated}\`\`\``);
 
                 await client.db.end();

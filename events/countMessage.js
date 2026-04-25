@@ -84,8 +84,12 @@ module.exports = {
 
                             try {
                                 client.deletedByBot.add(message.id);
+                                await message.reply(`Counting too fast! Slow down a bit. Count **${message.content}** has been deleted.`);
                                 await message.delete();
-                                console.log("already counted")
+                                console.log(`ALREADY COUNTED: Guild ID: ${message.guild.id},
+Author ID: ${message.author.id},
+Author Username: ${user.username},
+Current Count: ${current_count}`);
                             } catch (err) {
                                 console.log(err);
                             }
@@ -132,6 +136,10 @@ module.exports = {
                                 [message.guild.id]);
 
                         return await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
+                        console.log(`WRONG NUMBER: Guild ID: ${message.guild.id},
+Author ID: ${message.author.id},
+Author Username: ${user.username},
+Current Count: ${current_count}`);
                     }
 
                     client.deletedByBot.add(message.id);
@@ -149,6 +157,10 @@ module.exports = {
                                 [message.guild.id]);
 
                         return await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
+                        console.log(`WRONG NUMBER: Guild ID: ${message.guild.id},
+Author ID: ${message.author.id},
+Author Username: ${user.username},
+Current Count: ${current_count}`);
                     }
 
                     client.deletedByBot.add(message.id);
