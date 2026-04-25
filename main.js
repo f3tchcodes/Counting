@@ -13,6 +13,7 @@ BOT_PRESENCE = {
 
 const client = new Client({ 
     intents: 0,
+    waitForGuilds: true,
     presence: BOT_PRESENCE
 })
 

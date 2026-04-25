@@ -8,6 +8,7 @@ const { guildSize } = require("../utils/guildSize");
 module.exports = {
   name: Events.Ready,
   async execute(client) {
+    console.log(`Bot is in ${client.guilds.size} guilds`);
 
     /* DATABASE CONNECTION */
     try {
