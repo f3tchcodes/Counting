@@ -110,8 +110,7 @@ Current Count: ${current_count};`);
 
                     } catch (err) {
                         await conn.rollback();
-
-                        console.error("Transaction failed:", err);
+                        console.error("Transaction failed: ", err);
 
                         return await message.reply("❌ Something went wrong while updating the count. Please try again.");
 
@@ -127,6 +126,7 @@ Current Count: ${current_count};`);
                                 WHERE community_id = ?;`,
                                 [message.guild.id]);
 
+                        // logs
                         return await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
                         console.log(`WRONG NUMBER: Guild ID: ${message.guild.id},
 Author ID: ${message.author.id},
@@ -148,6 +148,7 @@ Current Count: ${current_count}`);
                                 WHERE community_id = ?;`,
                                 [message.guild.id]);
 
+                        // logs
                         return await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
                         console.log(`WRONG NUMBER: Guild ID: ${message.guild.id},
 Author ID: ${message.author.id},
