@@ -84,12 +84,11 @@ module.exports = {
 
                             try {
                                 client.deletedByBot.add(message.id);
-                                await message.reply(`Counting too fast! Slow down a bit. Count **${message.content}** has been deleted.`);
                                 await message.delete();
                                 console.log(`ALREADY COUNTED: Guild ID: ${message.guild.id},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
-Current Count: ${current_count}`);
+Current Count: ${current_count};`);
                             } catch (err) {
                                 console.log(err);
                             }
