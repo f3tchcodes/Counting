@@ -48,12 +48,7 @@ module.exports = {
                                 WHERE community_id = ?;`,
                                 [message.guild.id]);
 
-                        try {
-                            return await message.reply("❌ **COUNT RESET!** The same user cannot count twice in a row... Start from 1.");
-                        } catch (err) {
-                            await message.send("❌ **COUNT RESET!** The same user cannot count twice in a row... Start from 1.")
-                            return console.log(err)
-                        }
+                        return await message.reply("❌ **COUNT RESET!** The same user cannot count twice in a row... Start from 1.");
                     }
                     
                     client.deletedByBot.add(message.id);
@@ -85,15 +80,13 @@ module.exports = {
                             try {
                                 client.deletedByBot.add(message.id);
                                 await message.delete();
-                                console.log(`ALREADY COUNTED: Guild ID: ${message.guild.id},
+                                return console.log(`ALREADY COUNTED: Guild ID: ${message.guild.id},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${current_count};`);
                             } catch (err) {
-                                console.log(err);
+                                return console.log(err);
                             }
-
-                            return;
                         }
 
                         await conn.query(`
