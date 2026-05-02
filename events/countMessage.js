@@ -127,8 +127,8 @@ Current Count: ${current_count};`);
                                 [message.guild.id]);
 
                         // logs
-                        return await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
-                        console.log(`WRONG NUMBER: Guild ID: ${message.guild.id},
+                        await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
+                        return console.log(`WRONG NUMBER: Guild ID: ${message.guild.id},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${current_count}`);
@@ -149,8 +149,8 @@ Current Count: ${current_count}`);
                                 [message.guild.id]);
 
                         // logs
-                        return await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
-                        console.log(`WRONG NUMBER: Guild ID: ${message.guild.id},
+                        await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
+                        return console.log(`WRONG NUMBER: Guild ID: ${message.guild.id},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${current_count}`);
