@@ -131,10 +131,10 @@ Current Count: ${current_count};`);
 
                         // logs
                         await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
-                        return console.log(`WRONG NUMBER: Log 1 \n Guild ID: ${message.guild.id},
+                        return console.log(`WRONG NUMBER: Log 1 \nGuild ID: ${message.guild.id},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
-Current Count: ${current_count},
+Current Count: ${count.current_count},
 Number Variable: ${number},
 Next Count: ${next_count}`);
                     }
@@ -155,7 +155,7 @@ Next Count: ${next_count}`);
 
                         // logs
                         await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
-                        return console.log(`WRONG NUMBER: Log 2 \n Guild ID: ${message.guild.id},
+                        return console.log(`WRONG NUMBER: Log 2 \nGuild ID: ${message.guild.id},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${current_count},
