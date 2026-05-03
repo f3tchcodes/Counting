@@ -61,6 +61,9 @@ Community leaderboard
 \`${prefix}lb com hardcore\`
 Hardcore community leaderboard
 
+\`${prefix}lb com total\`
+View total contributions leaderboard
+
 \`${prefix}lb com user\`
 Top users in this community
 

@@ -20,7 +20,7 @@ module.exports = {
 
         const medals = ["🥇", "🥈", "🥉"];
 
-        if (args[0] === "com" && args[1] !== "user" && args[1] !== "hardcore") {
+        if (args[0] === "com" && args[1] !== "user" && args[1] !== "hardcore" && args[1] !== "total") {
             const [rowsCom] = await client.db.query(
                 `SELECT cc.community_name, cc.current_count
                 FROM community_count cc
@@ -70,6 +70,43 @@ module.exports = {
                 .setColor(0xFF4500)
                 .setFooter({ text: `Requested by ${message.author.username}` })
                 .setTimestamp( new Date() );
+
+            return message.send({ embeds: [embed] });
+        }
+
+        if (args[0] === "com" && args[1] === "total") {
+
+            const [rows] = await client.db.query(`
+                SELECT 
+                    uc.community_id,
+                    cc.community_name,
+                    SUM(uc.total_user_count) AS total
+                FROM user_count uc
+                JOIN community_count cc 
+                    ON uc.community_id = cc.community_id
+                JOIN community_settings cs
+                    ON uc.community_id = cs.community_id
+                WHERE cs.leaderboard_toggle = TRUE
+                GROUP BY uc.community_id, cc.community_name
+                ORDER BY total DESC
+                LIMIT 10;
+            `);
+
+            if (!rows.length) {
+                return message.send("No community leaderboard data yet.");
+            }
+
+            const description = rows.map((row, i) => {
+                const prefix = medals[i] || `**${i + 1}.**`;
+                return `${prefix} ${row.community_name} - \`${row.total}\``;
+            }).join("\n");
+
+            const embed = new EmbedBuilder()
+                .setTitle("🌍 Total Community Contributions Leaderboard")
+                .setDescription(description)
+                .setColor(0x4641D9)
+                .setFooter({ text: `Requested by ${message.author.username}` })
+                .setTimestamp(new Date());
 
             return message.send({ embeds: [embed] });
         }

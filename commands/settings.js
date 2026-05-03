@@ -146,7 +146,7 @@ module.exports = {
 
                 if (toggle){
                     message.send(`Leaderboard has been enabled!
-Use \`${settings?.prefix ?? process.env.PREFIX}lb com\` or \`${settings?.prefix ?? process.env.PREFIX}lb com hardcore\` to view your community's rank.`)
+Use \`${settings?.prefix ?? process.env.PREFIX}lb com\`, \`${settings?.prefix ?? process.env.PREFIX}lb com hardcore\` or \`${settings?.prefix ?? process.env.PREFIX}lb com total\` to view your community's rank.`)
                 } else {
                     message.send(`Leaderboard has been disabled! Your community will no longer be shown on the leaderboard!`)
                 }
