@@ -7,6 +7,7 @@ module.exports = {
     async execute(client, message) {
 
         try {            
+            if (!client.db) return
             const [rowsSettings] = await client.db.query(
                 "SELECT * FROM community_settings WHERE community_id = ?",
                 [message.channel.guildId]

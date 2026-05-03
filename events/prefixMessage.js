@@ -4,6 +4,7 @@ const { Events } = require("@fluxerjs/core");
 module.exports = {
   name: Events.MessageCreate,
   async execute(client, message) {
+    if (!client.db) return
     if (!message.guild) return;
 
     const [rows] = await client.db.query(

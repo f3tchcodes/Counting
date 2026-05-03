@@ -6,7 +6,8 @@ module.exports = {
     name: Events.MessageUpdate,
     async execute(client, oldMessage, newMessage) {
 
-        try {            
+        try {      
+            if (!client.db) return      
             const [rowsSettings] = await client.db.query(
                 "SELECT * FROM community_settings WHERE community_id = ?",
                 [newMessage.channel.guildId]

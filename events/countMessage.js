@@ -6,6 +6,7 @@ module.exports = {
     name: Events.MessageCreate,
     async execute(client, message) {
         try {
+            if (!client.db) return
             if (!message.guild) return;
             if (message.author.bot || message.author.system) return;
             
