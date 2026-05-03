@@ -57,9 +57,9 @@ module.exports = {
                     return await message.delete();
                 }
 
-                let current_count = count.current_count;
-                let next_count = current_count + 1;
-                let last_count_userid = count.last_count_userid;
+                const current_count = count.current_count;
+                const next_count = current_count + 1;
+                const last_count_userid = count.last_count_userid;
 
                 const user = await client.users.fetch(message.author.id);
                 if (number === next_count) {
