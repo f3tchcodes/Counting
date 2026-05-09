@@ -15,7 +15,13 @@ module.exports = {
                 [message.guild.id]
             );
 
+            const [rowsCount] = await client.db.query(
+                "SELECT * FROM community_count WHERE community_id = ?",
+                [message.guild.id]
+            );
+
             const settings = rowsSettings[0];
+            const count = rowsCount[0];
 
             if (!settings) return;
             if (message.channel.id !== settings.channel_id) return;
@@ -34,13 +40,6 @@ module.exports = {
 
             if (!number && !settings.numbers_only_toggle) return;
             if (number && number != 0) {
-
-                const [rowsCount] = await client.db.query(
-                    "SELECT * FROM community_count WHERE community_id = ?",
-                    [message.guild.id]
-                );
-                
-                const count = rowsCount[0];
 
                 if (message.author.id === count.last_count_userid) {
                     if (settings.hardcore_toggle) {
@@ -158,7 +157,7 @@ Next Count: ${next_count}`);
                         return console.log(`WRONG NUMBER: Log 2 \nGuild ID: ${message.guild.id},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
-Current Count: ${current_count},
+Current Count: ${count.current_count},
 Number Variable: ${number},
 Next Count: ${next_count}`);
                     }
