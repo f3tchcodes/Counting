@@ -82,10 +82,12 @@ module.exports = {
                             try {
                                 client.deletedByBot.add(message.id);
                                 await message.delete();
-                                return console.log(`ALREADY COUNTED: Guild ID: ${message.guild.id},
+                                return console.log(`ALREADY COUNTED: 
+Guild ID: ${message.guild.id},
+Guild Name: ${await client.guilds.fetch(message.guild.id)},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
-Current Count: ${current_count};`);
+Current Count: ${current_count};\n`);
                             } catch (err) {
                                 return console.log(err);
                             }
@@ -130,12 +132,14 @@ Current Count: ${current_count};`);
 
                         // logs
                         await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
-                        return console.log(`WRONG NUMBER: Log 1 \nGuild ID: ${message.guild.id},
+                        return console.log(`WRONG NUMBER: Log 1
+Guild ID: ${message.guild.id},
+Guild Name: ${await client.guilds.fetch(message.guild.id)},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${count.current_count},
 Number Variable: ${number},
-Next Count: ${next_count}`);
+Next Count: ${next_count}\n`);
                     }
 
                     client.deletedByBot.add(message.id);
@@ -154,12 +158,14 @@ Next Count: ${next_count}`);
 
                         // logs
                         await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
-                        return console.log(`WRONG NUMBER: Log 2 \nGuild ID: ${message.guild.id},
+                        return console.log(`WRONG NUMBER: Log 2
+Guild ID: ${message.guild.id},
+Guild Name: ${await client.guilds.fetch(message.guild.id)},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${count.current_count},
 Number Variable: ${number},
-Next Count: ${next_count}`);
+Next Count: ${next_count}\n`);
                     }
 
                     client.deletedByBot.add(message.id);
