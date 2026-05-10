@@ -88,7 +88,7 @@ Guild Name: ${await client.guilds.fetch(message.guild.id).name},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${current_count},
-Time: ${new Date.toLocaleTimeString()}\n`);
+Time: ${new Date()}\n`);
                             } catch (err) {
                                 return console.log(err);
                             }
@@ -141,7 +141,7 @@ Author Username: ${message.author.username},
 Current Count: ${count.current_count},
 Number Variable: ${number},
 Next Count: ${next_count},
-Time: ${new Date.toLocaleTimeString()}\n`);
+Time: ${new Date()}\n`);
                     }
 
                     client.deletedByBot.add(message.id);
@@ -168,7 +168,7 @@ Author Username: ${message.author.username},
 Current Count: ${count.current_count},
 Number Variable: ${number},
 Next Count: ${next_count},
-Time: ${new Date.toLocaleTimeString()}\n`);
+Time: ${new Date()}\n`);
                     }
 
                     client.deletedByBot.add(message.id);
