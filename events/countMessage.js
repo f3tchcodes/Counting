@@ -81,18 +81,16 @@ module.exports = {
 
                             try {
                                 client.deletedByBot.add(message.id);
-                                console.log(`ALREADY COUNTED: 
+                                await message.send(`❌ Slow down! Your count **${number}** has been deleted and is not considered a valid count.
+Next count: **${next_count}**`);
+                                await message.delete();
+                                return console.log(`ALREADY COUNTED: 
 Guild ID: ${message.guild.id},
 Guild Name: ${await client.guilds.fetch(message.guild.id).name},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${current_count},
 Time: ${new Date()}\n`);
-                                if (settings.hardcore_toggle) {
-                                    return await message.send(`❌ Slow down! Your count **${number}** has not been considered.
-Next count: **${next_count}**`);
-                                }
-                                return await message.delete();
                             } catch (err) {
                                 return console.log(err);
                             }
