@@ -90,6 +90,8 @@ Guild Name: ${await client.guilds.fetch(message.guild.id).name},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${current_count},
+Number Variable: ${number},
+Next Count: ${next_count},
 Time: ${new Date()}\n`);
                             } catch (err) {
                                 return console.log(err);
