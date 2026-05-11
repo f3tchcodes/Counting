@@ -86,7 +86,7 @@ Next count: **${next_count}**`);
                                 await message.delete();
                                 return console.log(`ALREADY COUNTED: 
 Guild ID: ${message.guild.id},
-Guild Name: ${await client.guilds.fetch(message.guild.id).name},
+Guild Name: ${(await client.guilds.fetch(message.guild.id)).name},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${current_count},
@@ -139,7 +139,7 @@ Time: ${new Date()}\n`);
                         await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
                         return console.log(`WRONG NUMBER: Log 1
 Guild ID: ${message.guild.id},
-Guild Name: ${await client.guilds.fetch(message.guild.id).name},
+Guild Name: ${(await client.guilds.fetch(message.guild.id)).name},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${count.current_count},
@@ -166,7 +166,7 @@ Time: ${new Date()}\n`);
                         await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
                         return console.log(`WRONG NUMBER: Log 2
 Guild ID: ${message.guild.id},
-Guild Name: ${await client.guilds.fetch(message.guild.id).name},
+Guild Name: ${(await client.guilds.fetch(message.guild.id)).name},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
 Current Count: ${count.current_count},
