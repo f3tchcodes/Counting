@@ -38,6 +38,10 @@ module.exports = {
                 number = Number(message.content);
             }
 
+            const current_count = count.current_count;
+            const next_count = current_count + 1;
+            const last_count_userid = count.last_count_userid;
+
             if (!number && !settings.numbers_only_toggle) return;
             if (number && number != 0) {
 
@@ -56,10 +60,6 @@ module.exports = {
                     client.deletedByBot.add(message.id);
                     return await message.delete();
                 }
-
-                const current_count = count.current_count;
-                const next_count = current_count + 1;
-                const last_count_userid = count.last_count_userid;
 
                 const user = await client.users.fetch(message.author.id);
                 if (number === next_count) {
@@ -142,7 +142,7 @@ Guild ID: ${message.guild.id},
 Guild Name: ${(await client.guilds.fetch(message.guild.id)).name},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
-Current Count: ${count.current_count},
+Current Count: ${current_count},
 Number Variable: ${number},
 Next Count: ${next_count},
 Time: ${new Date()}\n`);
@@ -169,7 +169,7 @@ Guild ID: ${message.guild.id},
 Guild Name: ${(await client.guilds.fetch(message.guild.id)).name},
 Author ID: ${message.author.id},
 Author Username: ${message.author.username},
-Current Count: ${count.current_count},
+Current Count: ${current_count},
 Number Variable: ${number},
 Next Count: ${next_count},
 Time: ${new Date()}\n`);
