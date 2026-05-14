@@ -3,7 +3,7 @@ const { Events } = require("@fluxerjs/core");
 const mysql2 = require("mysql2/promise");
 const { announce } = require("../utils/announce");
 const { pushPresenceUpdate } = require("../utils/pushPresenceUpdate");
-const { guildSize } = require("../utils/guildSize");
+const { guildSize } = require("../utils/common");
 
 module.exports = {
   name: Events.Ready,

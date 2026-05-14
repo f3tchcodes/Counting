@@ -1,6 +1,7 @@
 require("dotenv").config()
 
 const { Client } = require("@fluxerjs/core")
+const Redis = require("ioredis");
 const loadEvents = require("./handlers/loadEvents")
 const loadCommands = require("./handlers/loadCommands")
 
@@ -16,6 +17,11 @@ const client = new Client({
     waitForGuilds: true,
     presence: BOT_PRESENCE
 })
+
+client.redis = new Redis({
+    host: process.env.REDIS_IP || "127.0.0.1",
+    port: process.env.REDIS_PORT || 6379
+});
 
 client.commands = new Map()
 

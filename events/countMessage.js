@@ -1,187 +1,147 @@
 require("dotenv").config();
-const { Events, PermissionFlags } = require("@fluxerjs/core");
-const math = require('mathjs');
+const { Events } = require("@fluxerjs/core");
+const math = require("mathjs");
+const { buildLogs, resetCount } = require("../utils/common")
 
 module.exports = {
     name: Events.MessageCreate,
     async execute(client, message) {
+        // put basic checks
+        if (!client.db || 
+            !message.guild || 
+            message.author.bot || 
+            message.author.system) 
+        return;
+
+        
+        // fetching settings and count
+        const [rowsSettings] = await client.db.query("SELECT * FROM community_settings WHERE community_id = ?", [message.guild.id]);
+        const [rowsCount] = await client.db.query("SELECT * FROM community_count WHERE community_id = ?", [message.guild.id]);
+
+        const settings = rowsSettings[0];
+        const countData = rowsCount[0];
+
+        if (message.channel.id !== settings.channel_id) return;
+
+        // create a lock
+        const lockKey = `lock:count:${message.guild.id}`;
+        const lockValue = Date.now() + 5000; // after 5 seconds, redis automatically deletes the key and let's the code go through
+        
+        // set the lock, if it exists (meaning a query is still out there and hasn't updated the count)
+        // then try again 10 times every 300ms for the previous query to go through completely
+        let acquired = false;
+        for (let i = 0; i < 10; i++) {
+            acquired = await client.redis.set(lockKey, lockValue, "PX", 5000, "NX");
+            if (acquired) break;
+            await buildLogs(client, message, "SETTLING DOUBLE COUNT")
+            await new Promise(res => setTimeout(res, 300));
+        }
+
+        // if key is not acquired after 6 seconds of retrying
+        if (!acquired) return buildLogs(client, message, "KEY NOT ACQUIRED AFTER 6 SECONDS");
+
         try {
-            if (!client.db) return
-            if (!message.guild) return;
-            if (message.author.bot || message.author.system) return;
-            
-            const [rowsSettings] = await client.db.query(
-                "SELECT * FROM community_settings WHERE community_id = ?",
-                [message.guild.id]
-            );
+            if (!settings || message.channel.id !== settings.channel_id) return;
 
-            const [rowsCount] = await client.db.query(
-                "SELECT * FROM community_count WHERE community_id = ?",
-                [message.guild.id]
-            );
-
-            const settings = rowsSettings[0];
-            const count = rowsCount[0];
-
-            if (!settings) return;
-            if (message.channel.id !== settings.channel_id) return;
-
+            // evaluate number
             let number;
+            const content = message.content.trim();
 
             if (settings.arithmetic_toggle) {
                 try {
-                    number = await math.evaluate(message.content);
-                } catch (err) {
-                    number = Number(message.content);
+                    number = math.evaluate(content);
+                } catch {
+                    number = Number(content);
                 }
             } else {
-                number = Number(message.content);
+                number = Number(content);
             }
 
-            const current_count = count.current_count;
+            // validating number
+            const current_count = countData.current_count;
             const next_count = current_count + 1;
-            const last_count_userid = count.last_count_userid;
 
-            if (!number && !settings.numbers_only_toggle) return;
-            if (number && number != 0) {
-
-                if (message.author.id === count.last_count_userid) {
+            // if numbers-only is on and it's not a number, delete it, if hardcore, reset count.
+            if (isNaN(number) || number === null) {
+                if (settings.numbers_only_toggle) {
                     if (settings.hardcore_toggle) {
-                        await client.db.query(`
-                                UPDATE community_count
-                                SET current_count = 0,
-                                last_count_userid = NULL
-                                WHERE community_id = ?;`,
-                                [message.guild.id]);
-
-                        return await message.reply("❌ **COUNT RESET!** The same user cannot count twice in a row... Start from 1.");
+                        await resetCount(client, message.guild.id);
+                        buildLogs(client, message, "WRONG NUMBER WITH NUMBERS-ONLY", current_count, content, next_count)
+                        return await message.reply(`❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`);
                     }
-                    
                     client.deletedByBot.add(message.id);
-                    return await message.delete();
+                    return await message.delete().catch(() => {});
                 }
+                return;
+            }
 
-                const user = await client.users.fetch(message.author.id);
-                if (number === next_count) {
-                    const conn = await client.db.getConnection();
+            // check if the user counted twice
+            if (message.author.id === countData.last_count_userid) {
+                if (settings.hardcore_toggle) {
+                    await resetCount(client, message.guild.id);
+                    return await message.reply("❌ **COUNT RESET!** You cannot count twice in a row. Start from 1.");
+                }
+                client.deletedByBot.add(message.id);
+                return await message.delete().catch(() => {});
+            }
 
-                    try {
-                        await conn.beginTransaction();
-
-                        const [updateResult] = await conn.query(`
-                            UPDATE community_count
-                            SET current_count = current_count + 1,
-                                last_count_userid = ?
-                            WHERE community_id = ?
-                            AND current_count = ?;
-                        `, [message.author.id, message.guild.id, current_count]);
-
-                        if (updateResult.affectedRows === 0) {
-                            await conn.rollback();
-
-                            try {
-                                client.deletedByBot.add(message.id);
-                                await message.send(`❌ Slow down! Your count **${number}** has been deleted and is not considered a valid count.
-Next count: **${next_count}**`);
-                                await message.delete();
-                                return console.log(`ALREADY COUNTED: 
-Guild ID: ${message.guild.id},
-Guild Name: ${(await client.guilds.fetch(message.guild.id)).name},
-Author ID: ${message.author.id},
-Author Username: ${message.author.username},
-Current Count: ${current_count},
-Number Variable: ${number},
-Next Count: ${next_count},
-Time: ${new Date()}\n`);
-                            } catch (err) {
-                                return console.log(err);
-                            }
-                        }
-
-                        await conn.query(`
-                            INSERT INTO user_count (community_id, user_id, username, total_user_count)
-                            VALUES (?, ?, ?, 1)
-                            ON DUPLICATE KEY UPDATE
-                                total_user_count = total_user_count + 1,
-                                username = ?;
-                        `, [message.guild.id, message.author.id, user.username, user.username]);
-
-                        await conn.query(`
-                            UPDATE global_stats 
-                            SET total_count = total_count + 1 
-                            WHERE id = 1;
-                        `);
-
-                        await conn.commit();
-
-                        client.messageCache.set(message.id, message.content);
-                        return message.react("✅");
-
-                    } catch (err) {
-                        await conn.rollback();
-                        console.error("Transaction failed: ", err);
-
-                        return await message.reply("❌ Something went wrong while updating the count. Please try again.");
-
-                    } finally {
-                        conn.release();
-                    }
+            // check if the number is wrong
+            if (number !== next_count) {
+                if (settings.hardcore_toggle) {
+                    await resetCount(client, message.guild.id);
+                    buildLogs(client, message, "WRONG NUMBER", current_count, content, next_count)
+                    return await message.reply(`❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`);
                 } else {
-                    if (settings.hardcore_toggle){
-                        await client.db.query(`
-                                UPDATE community_count
-                                SET current_count = 0,
-                                last_count_userid = NULL
-                                WHERE community_id = ?;`,
-                                [message.guild.id]);
-
-                        // logs
-                        await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
-                        return console.log(`WRONG NUMBER: Log 1
-Guild ID: ${message.guild.id},
-Guild Name: ${(await client.guilds.fetch(message.guild.id)).name},
-Author ID: ${message.author.id},
-Author Username: ${message.author.username},
-Current Count: ${current_count},
-Number Variable: ${number},
-Next Count: ${next_count},
-Time: ${new Date()}\n`);
-                    }
-
+                    // tell the user why it's deleted
+                    const warn = await message.reply(`❌ Wrong number! Next count is **${next_count}**.`);
+                    setTimeout(() => warn.delete().catch(() => {}), 3000); // delete after letting the user know
                     client.deletedByBot.add(message.id);
-                    return await message.delete();
-                    
-                }
-            } else {
-                if (settings.numbers_only_toggle){
-                    if (settings.hardcore_toggle){
-                        await client.db.query(`
-                                UPDATE community_count
-                                SET current_count = 0,
-                                last_count_userid = NULL
-                                WHERE community_id = ?;`,
-                                [message.guild.id]);
-
-                        // logs
-                        await message.reply("❌ **WRONG NUMBER!** Resetting the count... Start from 1.");
-                        return console.log(`WRONG NUMBER: Log 2
-Guild ID: ${message.guild.id},
-Guild Name: ${(await client.guilds.fetch(message.guild.id)).name},
-Author ID: ${message.author.id},
-Author Username: ${message.author.username},
-Current Count: ${current_count},
-Number Variable: ${number},
-Next Count: ${next_count},
-Time: ${new Date()}\n`);
-                    }
-
-                    client.deletedByBot.add(message.id);
-                    return await message.delete();
+                    return await message.delete().catch(() => {});
                 }
             }
+
+            // proceed with valid count
+            const conn = await client.db.getConnection();
+            try {
+                await conn.beginTransaction();
+
+                const [updateResult] = await conn.query(
+                    `UPDATE community_count 
+                    SET current_count = current_count + 1, 
+                    last_count_userid = ? 
+                    WHERE community_id = ? AND current_count = ?`,
+                    [message.author.id, message.guild.id, current_count]
+                );
+
+                if (updateResult.affectedRows === 0) {
+                    buildLogs(client, message, "UPDATERESULT.AFFECTEDROWS FAILED", current_count, content, next_count)
+                    throw new Error("Error occured while updating result");
+                }
+
+                await conn.query(
+                    `INSERT INTO user_count 
+                    (community_id, user_id, username, total_user_count) 
+                    VALUES (?, ?, ?, 1) 
+                    ON DUPLICATE KEY UPDATE 
+                    total_user_count = total_user_count + 1, 
+                    username = ?`,
+                    [message.guild.id, message.author.id, message.author.username, message.author.username]
+                );
+
+                await conn.commit();
+                await message.react("✅").catch(() => {});
+            } catch (err) {
+                await conn.rollback();
+                throw err;
+            } finally {
+                conn.release();
+            }
+
         } catch (err) {
-            console.log(err);
-            return await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!").catch(console.log);
+            console.error(err);
+        } finally {
+            // release redis lock
+            await client.redis.del(lockKey);
         }
     }
 };

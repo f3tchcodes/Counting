@@ -1,6 +1,6 @@
 const { Events } = require("@fluxerjs/core");
 const { pushPresenceUpdate } = require("../utils/pushPresenceUpdate");
-const { guildSize } = require("../utils/guildSize");
+const { guildSize } = require("../utils/common");
 
 module.exports = {
     name: Events.GuildCreate,
