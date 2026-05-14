@@ -20,7 +20,8 @@ module.exports = {
 
         // total global count
         const [[global]] = await client.db.query(
-            "SELECT total_count FROM global_stats WHERE id = 1"
+            `SELECT SUM(total_user_count) AS total_count
+            FROM user_count`
         );
 
         // total servers
