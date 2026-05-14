@@ -17,10 +17,9 @@ module.exports = {
         
         // fetching settings and count
         const [rowsSettings] = await client.db.query("SELECT * FROM community_settings WHERE community_id = ?", [message.guild.id]);
-        const [rowsCount] = await client.db.query("SELECT * FROM community_count WHERE community_id = ?", [message.guild.id]);
-
         const settings = rowsSettings[0];
-        const countData = rowsCount[0];
+
+        if (!settings || message.channel.id !== settings.channel_id) return;
 
         if (message.channel.id !== settings.channel_id) return;
 
@@ -42,7 +41,8 @@ module.exports = {
         if (!acquired) return await buildLogs(client, message, "KEY NOT ACQUIRED AFTER 9 SECONDS");
 
         try {
-            if (!settings || message.channel.id !== settings.channel_id) return;
+            const [rowsCount] = await client.db.query("SELECT * FROM community_count WHERE community_id = ?", [message.guild.id]);
+            const countData = rowsCount[0];
 
             // evaluate number
             let number;
