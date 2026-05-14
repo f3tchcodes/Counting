@@ -38,7 +38,7 @@ module.exports = {
             await setTimeout(300);
         }
 
-        // if key is not acquired after 6 seconds of retrying
+        // if key is not acquired after 9 seconds of retrying
         if (!acquired) return await buildLogs(client, message, "KEY NOT ACQUIRED AFTER 9 SECONDS");
 
         try {
