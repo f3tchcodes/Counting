@@ -96,7 +96,7 @@ Show this help menu
 Good luck climbing the leaderboard 🚀`
             ).addFields({
                 name: "🔗 Links",
-                value: "[Invite me](https://web.fluxer.app/oauth2/authorize?client_id=1484113258352640042&scope=bot&permissions=76864)  •  [Support server](https://fluxer.gg/s3MEFBfB)"
+                value: "[Invite me](https://web.fluxer.app/oauth2/authorize?client_id=1484113258352640042&scope=bot&permissions=76864)  •  [Support server](https://fluxer.gg/s3MEFBfB) • [GitHub](https://github.com/f3tchcodes/Counting)"
             }).setFooter({ text: "Counting Bot • Made by f3tch#0001" })
             .setTimestamp(new Date());
 
