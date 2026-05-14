@@ -2,6 +2,7 @@ require("dotenv").config();
 const { Events } = require("@fluxerjs/core");
 const math = require("mathjs");
 const { buildLogs, resetCount } = require("../utils/common")
+const { setTimeout } = require('node:timers/promises');
 
 module.exports = {
     name: Events.MessageCreate,
@@ -33,12 +34,12 @@ module.exports = {
         for (let i = 0; i < 10; i++) {
             acquired = await client.redis.set(lockKey, lockValue, "PX", 5000, "NX");
             if (acquired) break;
-            await buildLogs(client, message, "SETTLING DOUBLE COUNT")
-            await new Promise(res => setTimeout(res, 300));
+            buildLogs(client, message, "SETTLING DOUBLE COUNT").catch(err => console.log(err));
+            await setTimeout(300);
         }
 
         // if key is not acquired after 6 seconds of retrying
-        if (!acquired) return buildLogs(client, message, "KEY NOT ACQUIRED AFTER 6 SECONDS");
+        if (!acquired) return await buildLogs(client, message, "KEY NOT ACQUIRED AFTER 6 SECONDS");
 
         try {
             if (!settings || message.channel.id !== settings.channel_id) return;
@@ -66,8 +67,8 @@ module.exports = {
                 if (settings.numbers_only_toggle) {
                     if (settings.hardcore_toggle) {
                         await resetCount(client, message.guild.id);
-                        buildLogs(client, message, "WRONG NUMBER WITH NUMBERS-ONLY", current_count, content, next_count)
-                        return await message.reply(`❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`);
+                        await message.reply(`❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`);
+                        return await buildLogs(client, message, "WRONG NUMBER WITH NUMBERS-ONLY", current_count, content, next_count);
                     }
                     client.deletedByBot.add(message.id);
                     return await message.delete().catch(() => {});
@@ -89,8 +90,8 @@ module.exports = {
             if (number !== next_count) {
                 if (settings.hardcore_toggle) {
                     await resetCount(client, message.guild.id);
-                    buildLogs(client, message, "WRONG NUMBER", current_count, content, next_count)
-                    return await message.reply(`❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`);
+                    await message.reply(`❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`);
+                    return await buildLogs(client, message, "WRONG NUMBER", current_count, content, next_count);
                 } else {
                     // tell the user why it's deleted
                     const warn = await message.reply(`❌ Wrong number! Next count is **${next_count}**.`);
@@ -114,7 +115,7 @@ module.exports = {
                 );
 
                 if (updateResult.affectedRows === 0) {
-                    buildLogs(client, message, "UPDATERESULT.AFFECTEDROWS FAILED", current_count, content, next_count)
+                    await buildLogs(client, message, "UPDATERESULT.AFFECTEDROWS FAILED", current_count, content, next_count);
                     throw new Error("Error occured while updating result");
                 }
 
