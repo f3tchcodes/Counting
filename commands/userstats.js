@@ -32,21 +32,28 @@ module.exports = {
             const guildId = message.guild.id;
 
             // total counts globally
-            const [[globalTotalRow]] = await client.db.query(`
+            const [[globalTotalRow]] = await client.db.query(
+                `
                 SELECT SUM(total_user_count) AS total
                 FROM user_count
                 WHERE user_id = ?
-            `, [userId]);
+            `,
+                [userId],
+            );
 
             // total community counts
-            const [[communityTotalRow]] = await client.db.query(`
+            const [[communityTotalRow]] = await client.db.query(
+                `
                 SELECT total_user_count
                 FROM user_count
                 WHERE user_id = ? AND community_id = ?
-            `, [userId, guildId]);
+            `,
+                [userId, guildId],
+            );
 
             // global rank
-            const [[globalRankRow]] = await client.db.query(`
+            const [[globalRankRow]] = await client.db.query(
+                `
                 SELECT COUNT(*) + 1 AS user_rank
                 FROM (
                     SELECT user_id, SUM(total_user_count) AS total
@@ -58,10 +65,13 @@ module.exports = {
                     FROM user_count
                     WHERE user_id = ?
                 )
-            `, [userId]);
+            `,
+                [userId],
+            );
 
             // community rank
-            const [[communityRankRow]] = await client.db.query(`
+            const [[communityRankRow]] = await client.db.query(
+                `
                 SELECT COUNT(*) + 1 AS user_rank
                 FROM user_count
                 WHERE community_id = ?
@@ -70,39 +80,42 @@ module.exports = {
                     FROM user_count
                     WHERE user_id = ? AND community_id = ?
                 )
-            `, [guildId, userId, guildId]);
+            `,
+                [guildId, userId, guildId],
+            );
 
             // null or not applicable
             const globalTotal = globalTotalRow?.total || 0;
             const communityTotal = communityTotalRow?.total_user_count || 0;
 
-            const globalRank = globalTotal > 0 ? globalRankRow?.user_rank : "N/A";
-            const communityRank = communityTotal > 0 ? communityRankRow?.user_rank : "N/A";
+            const globalRank =
+                globalTotal > 0 ? globalRankRow?.user_rank : "N/A";
+            const communityRank =
+                communityTotal > 0 ? communityRankRow?.user_rank : "N/A";
 
             // embed reply
             const embed = {
-                color: 0x4641D9,
+                color: 0x4641d9,
                 title: `📊 ${target.username}'s Counting Stats`,
                 fields: [
                     {
                         name: "🌍 Global",
                         value: `• Total Counts: **${globalTotal}**\n• Rank: **#${globalRank}**`,
-                        inline: false
+                        inline: false,
                     },
                     {
                         name: `🏠 ${message.guild.name}`,
                         value: `• Counts: **${communityTotal}**\n• Rank: **#${communityRank}**`,
-                        inline: false
-                    }
+                        inline: false,
+                    },
                 ],
                 footer: {
-                    text: `Requested by ${message.author.username}`
+                    text: `Requested by ${message.author.username}`,
                 },
-                timestamp: new Date()
+                timestamp: new Date(),
             };
 
             await message.send({ embeds: [embed] });
-
         } catch (err) {
             console.error("UserStats Error:", err);
 
@@ -112,5 +125,5 @@ module.exports = {
                 console.log(err);
             }
         }
-    }
+    },
 };

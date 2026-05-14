@@ -1,22 +1,26 @@
 require("dotenv").config();
 const { Events } = require("@fluxerjs/core");
 const math = require("mathjs");
-const { buildLogs, resetCount } = require("../utils/common")
-const { setTimeout } = require('node:timers/promises');
+const { buildLogs, resetCount } = require("../utils/common");
+const { setTimeout } = require("node:timers/promises");
 
 module.exports = {
     name: Events.MessageCreate,
     async execute(client, message) {
         // put basic checks
-        if (!client.db || 
-            !message.guild || 
-            message.author.bot || 
-            message.author.system) 
-        return;
+        if (
+            !client.db ||
+            !message.guild ||
+            message.author.bot ||
+            message.author.system
+        )
+            return;
 
-        
         // fetching settings and count
-        const [rowsSettings] = await client.db.query("SELECT * FROM community_settings WHERE community_id = ?", [message.guild.id]);
+        const [rowsSettings] = await client.db.query(
+            "SELECT * FROM community_settings WHERE community_id = ?",
+            [message.guild.id],
+        );
         const settings = rowsSettings[0];
 
         if (!settings || message.channel.id !== settings.channel_id) return;
@@ -26,22 +30,38 @@ module.exports = {
         // create a lock
         const lockKey = `lock:count:${message.guild.id}`;
         const lockValue = Date.now() + 10000; // after 5 seconds, redis automatically deletes the key and let's the code go through
-        
+
         // set the lock, if it exists (meaning a query is still out there and hasn't updated the count)
         // then try again 10 times every 300ms for the previous query to go through completely
         let acquired = false;
         for (let i = 0; i < 30; i++) {
-            acquired = await client.redis.set(lockKey, lockValue, "PX", 10000, "NX");
+            acquired = await client.redis.set(
+                lockKey,
+                lockValue,
+                "PX",
+                10000,
+                "NX",
+            );
             if (acquired) break;
-            buildLogs(client, message, "SETTLING DOUBLE COUNT").catch(err => console.log(err));
+            buildLogs(client, message, "SETTLING DOUBLE COUNT").catch((err) =>
+                console.log(err),
+            );
             await setTimeout(300);
         }
 
         // if key is not acquired after 9 seconds of retrying
-        if (!acquired) return await buildLogs(client, message, "KEY NOT ACQUIRED AFTER 9 SECONDS");
+        if (!acquired)
+            return await buildLogs(
+                client,
+                message,
+                "KEY NOT ACQUIRED AFTER 9 SECONDS",
+            );
 
         try {
-            const [rowsCount] = await client.db.query("SELECT * FROM community_count WHERE community_id = ?", [message.guild.id]);
+            const [rowsCount] = await client.db.query(
+                "SELECT * FROM community_count WHERE community_id = ?",
+                [message.guild.id],
+            );
             const countData = rowsCount[0];
 
             // evaluate number
@@ -67,8 +87,17 @@ module.exports = {
                 if (settings.numbers_only_toggle) {
                     if (settings.hardcore_toggle) {
                         await resetCount(client, message.guild.id);
-                        await message.reply(`❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`);
-                        return await buildLogs(client, message, "WRONG NUMBER WITH NUMBERS-ONLY", current_count, content, next_count);
+                        await message.reply(
+                            `❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`,
+                        );
+                        return await buildLogs(
+                            client,
+                            message,
+                            "WRONG NUMBER WITH NUMBERS-ONLY",
+                            current_count,
+                            content,
+                            next_count,
+                        );
                     }
                     client.deletedByBot.add(message.id);
                     return await message.delete().catch(() => {});
@@ -80,7 +109,9 @@ module.exports = {
             if (message.author.id === countData.last_count_userid) {
                 if (settings.hardcore_toggle) {
                     await resetCount(client, message.guild.id);
-                    return await message.reply("❌ **COUNT RESET!** You cannot count twice in a row. Start from 1.");
+                    return await message.reply(
+                        "❌ **COUNT RESET!** You cannot count twice in a row. Start from 1.",
+                    );
                 }
                 client.deletedByBot.add(message.id);
                 return await message.delete().catch(() => {});
@@ -90,11 +121,22 @@ module.exports = {
             if (number !== next_count) {
                 if (settings.hardcore_toggle) {
                     await resetCount(client, message.guild.id);
-                    await message.reply(`❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`);
-                    return await buildLogs(client, message, "WRONG NUMBER", current_count, content, next_count);
+                    await message.reply(
+                        `❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`,
+                    );
+                    return await buildLogs(
+                        client,
+                        message,
+                        "WRONG NUMBER",
+                        current_count,
+                        content,
+                        next_count,
+                    );
                 } else {
                     // tell the user why it's deleted
-                    const warn = await message.reply(`❌ Wrong number! Next count is **${next_count}**.`);
+                    const warn = await message.reply(
+                        `❌ Wrong number! Next count is **${next_count}**.`,
+                    );
                     setTimeout(() => warn.delete().catch(() => {}), 3000); // delete after letting the user know
                     client.deletedByBot.add(message.id);
                     return await message.delete().catch(() => {});
@@ -111,11 +153,18 @@ module.exports = {
                     SET current_count = current_count + 1, 
                     last_count_userid = ? 
                     WHERE community_id = ? AND current_count = ?`,
-                    [message.author.id, message.guild.id, current_count]
+                    [message.author.id, message.guild.id, current_count],
                 );
 
                 if (updateResult.affectedRows === 0) {
-                    await buildLogs(client, message, "UPDATERESULT.AFFECTEDROWS FAILED", current_count, content, next_count);
+                    await buildLogs(
+                        client,
+                        message,
+                        "UPDATERESULT.AFFECTEDROWS FAILED",
+                        current_count,
+                        content,
+                        next_count,
+                    );
                     throw new Error("Error occured while updating result");
                 }
 
@@ -126,7 +175,12 @@ module.exports = {
                     ON DUPLICATE KEY UPDATE 
                     total_user_count = total_user_count + 1, 
                     username = ?`,
-                    [message.guild.id, message.author.id, message.author.username, message.author.username]
+                    [
+                        message.guild.id,
+                        message.author.id,
+                        message.author.username,
+                        message.author.username,
+                    ],
                 );
 
                 await conn.commit();
@@ -137,12 +191,11 @@ module.exports = {
             } finally {
                 conn.release();
             }
-
         } catch (err) {
             console.error(err);
         } finally {
             // release redis lock
             await client.redis.del(lockKey);
         }
-    }
+    },
 };

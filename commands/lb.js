@@ -9,40 +9,50 @@ module.exports = {
 
         const [rowsSettings] = await client.db.query(
             "SELECT * FROM community_settings WHERE community_id = ?",
-            [communityId]
+            [communityId],
         );
 
         const settings = rowsSettings[0];
-        
-        if (!settings){
-            return message.send(`Use \`${settings?.prefix ?? process.env.PREFIX}setup\`...`)
+
+        if (!settings) {
+            return message.send(
+                `Use \`${settings?.prefix ?? process.env.PREFIX}setup\`...`,
+            );
         }
 
         const medals = ["🥇", "🥈", "🥉"];
 
-        if (args[0] === "com" && args[1] !== "user" && args[1] !== "hardcore" && args[1] !== "total") {
+        if (
+            args[0] === "com" &&
+            args[1] !== "user" &&
+            args[1] !== "hardcore" &&
+            args[1] !== "total"
+        ) {
             const [rowsCom] = await client.db.query(
                 `SELECT cc.community_name, cc.current_count
                 FROM community_count cc
                 JOIN community_settings cs ON cc.community_id = cs.community_id
                 WHERE cs.leaderboard_toggle = TRUE AND cs.hardcore_toggle = FALSE
                 ORDER BY cc.current_count DESC
-                LIMIT 10`
+                LIMIT 10`,
             );
 
-            if (!rowsCom.length) return message.send("No community leaderboard data yet.");
+            if (!rowsCom.length)
+                return message.send("No community leaderboard data yet.");
 
-            let description = rowsCom.map((row, i) => {
-                const prefix = medals[i] || `**${i + 1}.**`;
-                return `${prefix} ${row.community_name} - \`${row.current_count}\``;
-            }).join("\n");
+            let description = rowsCom
+                .map((row, i) => {
+                    const prefix = medals[i] || `**${i + 1}.**`;
+                    return `${prefix} ${row.community_name} - \`${row.current_count}\``;
+                })
+                .join("\n");
 
             const embed = new EmbedBuilder()
                 .setTitle("🌍 Global Community Leaderboard")
                 .setDescription(description)
-                .setColor(0x4641D9)
+                .setColor(0x4641d9)
                 .setFooter({ text: `Requested by ${message.author.username}` })
-                .setTimestamp( new Date() );
+                .setTimestamp(new Date());
 
             return message.send({ embeds: [embed] });
         }
@@ -54,28 +64,30 @@ module.exports = {
                 JOIN community_settings cs ON cc.community_id = cs.community_id
                 WHERE cs.hardcore_toggle = TRUE AND cs.leaderboard_toggle = TRUE
                 ORDER BY cc.current_count DESC
-                LIMIT 10`
+                LIMIT 10`,
             );
 
-            if (!rowsHardcore.length) return message.send("No hardcore leaderboard data yet.");
+            if (!rowsHardcore.length)
+                return message.send("No hardcore leaderboard data yet.");
 
-            let description = rowsHardcore.map((row, i) => {
-                const prefix = medals[i] || `**${i + 1}.**`;
-                return `${prefix} ${row.community_name} - \`${row.current_count}\``;
-            }).join("\n");
+            let description = rowsHardcore
+                .map((row, i) => {
+                    const prefix = medals[i] || `**${i + 1}.**`;
+                    return `${prefix} ${row.community_name} - \`${row.current_count}\``;
+                })
+                .join("\n");
 
             const embed = new EmbedBuilder()
                 .setTitle("🔥 Hardcore Leaderboard")
                 .setDescription(description)
-                .setColor(0xFF4500)
+                .setColor(0xff4500)
                 .setFooter({ text: `Requested by ${message.author.username}` })
-                .setTimestamp( new Date() );
+                .setTimestamp(new Date());
 
             return message.send({ embeds: [embed] });
         }
 
         if (args[0] === "com" && args[1] === "total") {
-
             const [rows] = await client.db.query(`
                 SELECT 
                     uc.community_id,
@@ -96,15 +108,17 @@ module.exports = {
                 return message.send("No community leaderboard data yet.");
             }
 
-            const description = rows.map((row, i) => {
-                const prefix = medals[i] || `**${i + 1}.**`;
-                return `${prefix} ${row.community_name} - \`${row.total}\``;
-            }).join("\n");
+            const description = rows
+                .map((row, i) => {
+                    const prefix = medals[i] || `**${i + 1}.**`;
+                    return `${prefix} ${row.community_name} - \`${row.total}\``;
+                })
+                .join("\n");
 
             const embed = new EmbedBuilder()
                 .setTitle("🌍 Total Community Contributions Leaderboard")
                 .setDescription(description)
-                .setColor(0x4641D9)
+                .setColor(0x4641d9)
                 .setFooter({ text: `Requested by ${message.author.username}` })
                 .setTimestamp(new Date());
 
@@ -118,22 +132,25 @@ module.exports = {
                 WHERE community_id = ?
                 ORDER BY total_user_count DESC
                 LIMIT 10`,
-                [communityId]
+                [communityId],
             );
 
-            if (!rowsUser.length) return message.send("No leaderboard data yet for this server.");
+            if (!rowsUser.length)
+                return message.send("No leaderboard data yet for this server.");
 
-            let description = rowsUser.map((user, i) => {
-                const prefix = medals[i] || `**${i + 1}.**`;
-                return `${prefix} ${user.username} - \`${user.total_user_count}\``;
-            }).join("\n");
+            let description = rowsUser
+                .map((user, i) => {
+                    const prefix = medals[i] || `**${i + 1}.**`;
+                    return `${prefix} ${user.username} - \`${user.total_user_count}\``;
+                })
+                .join("\n");
 
             const embed = new EmbedBuilder()
                 .setTitle(`🏆 ${message.guild.name} Leaderboard`)
                 .setDescription(description)
-                .setColor(0x4641D9)
+                .setColor(0x4641d9)
                 .setFooter({ text: `Requested by ${message.author.username}` })
-                .setTimestamp( new Date() );
+                .setTimestamp(new Date());
 
             return message.send({ embeds: [embed] });
         }
@@ -144,24 +161,27 @@ module.exports = {
                 FROM user_count
                 GROUP BY user_id, username
                 ORDER BY total DESC
-                LIMIT 10`
+                LIMIT 10`,
             );
 
-            if (!rowsGlobal.length) return message.send("No global user data yet.");
+            if (!rowsGlobal.length)
+                return message.send("No global user data yet.");
 
-            let description = rowsGlobal.map((user, i) => {
-                const prefix = medals[i] || `**${i + 1}.**`;
-                return `${prefix} ${user.username} - \`${user.total}\``;
-            }).join("\n");
+            let description = rowsGlobal
+                .map((user, i) => {
+                    const prefix = medals[i] || `**${i + 1}.**`;
+                    return `${prefix} ${user.username} - \`${user.total}\``;
+                })
+                .join("\n");
 
             const embed = new EmbedBuilder()
                 .setTitle("🌍 Global User Leaderboard")
                 .setDescription(description)
-                .setColor(0x4641D9)
+                .setColor(0x4641d9)
                 .setFooter({ text: `Requested by ${message.author.username}` })
-                .setTimestamp( new Date() );
+                .setTimestamp(new Date());
 
             return message.send({ embeds: [embed] });
         }
-    }
+    },
 };

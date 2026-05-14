@@ -18,7 +18,9 @@ module.exports = {
                     const owner = await client.users.fetch(newGuild.ownerId);
                     ownerUsername = owner.username;
                 } catch (fetchError) {
-                    console.error(`Failed to fetch new owner for ${newGuild.id}`);
+                    console.error(
+                        `Failed to fetch new owner for ${newGuild.id}`,
+                    );
                 }
             }
 
@@ -28,12 +30,7 @@ module.exports = {
                     owner_id = ?, 
                     owner_username = IFNULL(?, owner_username)
                 WHERE community_id = ?`,
-                [
-                    newGuild.name, 
-                    newGuild.ownerId, 
-                    ownerUsername, 
-                    newGuild.id
-                ]
+                [newGuild.name, newGuild.ownerId, ownerUsername, newGuild.id],
             );
 
             console.log(`Updated info for ${newGuild.name} (${newGuild.id})`);
@@ -41,5 +38,5 @@ module.exports = {
         } catch (err) {
             console.error("Database error during GuildUpdate:", err);
         }
-    }
+    },
 };

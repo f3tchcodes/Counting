@@ -27,12 +27,16 @@ module.exports = {
 
             try {
                 const command = "git pull && npm install";
-                await message.send("```UPDATING...```")
-                let result = await execAsync(command, { timeout: 60000 })
-                            .catch(error => ({ stdout: null, stderr: error }));
+                await message.send("```UPDATING...```");
+                let result = await execAsync(command, { timeout: 60000 }).catch(
+                    (error) => ({ stdout: null, stderr: error }),
+                );
                 let resultFormated = [result.stdout, result.stderr].join("\n");
-                if (resultFormated.length > 2000) return message.send("Output too long");
-                console.log(`COMMAND RAN: ${command}\nRESULT: ${resultFormated}`);
+                if (resultFormated.length > 2000)
+                    return message.send("Output too long");
+                console.log(
+                    `COMMAND RAN: ${command}\nRESULT: ${resultFormated}`,
+                );
                 await message.send(`\`\`\`${resultFormated}\`\`\``);
 
                 await client.db.end();
@@ -48,23 +52,32 @@ module.exports = {
         if (args[0] === "execute") {
             try {
                 const command = args.slice(1).join(" ");
-                let result = await execAsync(command, { timeout: 60000 })
-                            .catch(error => ({ stdout: null, stderr: error }));
+                let result = await execAsync(command, { timeout: 60000 }).catch(
+                    (error) => ({ stdout: null, stderr: error }),
+                );
                 let resultFormated = [result.stdout, result.stderr].join("\n");
-                if (resultFormated.length > 2000) return message.send("Output too long");
-                console.log(`COMMAND RAN: ${command}\nRESULT: ${resultFormated}`);
-                await message.send(`\`\`\`${resultFormated}\`\`\``)
+                if (resultFormated.length > 2000)
+                    return message.send("Output too long");
+                console.log(
+                    `COMMAND RAN: ${command}\nRESULT: ${resultFormated}`,
+                );
+                await message.send(`\`\`\`${resultFormated}\`\`\``);
             } catch (err) {
-                await message.reply("Error occured while running the command.")
-                console.log(err)
+                await message.reply("Error occured while running the command.");
+                console.log(err);
             }
         }
 
         if (args[0] === "shutdown") {
             console.log("Sending shutdown messages to all communities...");
-            await message.send("Sending shutdown messages to all communities...");
+            await message.send(
+                "Sending shutdown messages to all communities...",
+            );
 
-            await announce(client, "⚠️ **The bot will be offline for maintenance/updates. Halt counting!**");
+            await announce(
+                client,
+                "⚠️ **The bot will be offline for maintenance/updates. Halt counting!**",
+            );
 
             // updating flag to 1 so the next time we start the bot, it sends start up message
             await client.db.query(`
@@ -79,21 +92,29 @@ module.exports = {
                 await message.send("Shutting down the bot...");
                 return shutdown();
             } catch (err) {
-                message.send("Error occured while shutting down! Shutdown failed.");
+                message.send(
+                    "Error occured while shutting down! Shutdown failed.",
+                );
                 console.log(err);
                 process.exit(1);
             }
         }
 
         if (args[0] === "announce") {
-            const [[rowSettings]] = await client.db.query(`
+            const [[rowSettings]] = await client.db.query(
+                `
                 SELECT * FROM community_settings WHERE community_id = ?;
-                `, message.guild.id);
+                `,
+                message.guild.id,
+            );
 
             const messageTemplate = argsS.slice(1).join("");
-            const messageA = messageTemplate.replace("<prefix>", rowSettings.prefix);
+            const messageA = messageTemplate.replace(
+                "<prefix>",
+                rowSettings.prefix,
+            );
 
             await announce(client, messageA);
         }
-    }
-}
+    },
+};

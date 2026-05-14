@@ -4,29 +4,30 @@ module.exports = {
     name: "globalstats",
 
     async execute(message) {
-
         const client = message.client;
 
         const [rows] = await client.db.query(
             "SELECT * FROM community_settings WHERE community_id = ?",
-            [message.guild.id]
+            [message.guild.id],
         );
 
         const settings = rows[0];
 
-        if (!settings){
-            return message.send(`Use \`${settings?.prefix ?? process.env.PREFIX}setup\` to setup the bot before you run other commands!`)
+        if (!settings) {
+            return message.send(
+                `Use \`${settings?.prefix ?? process.env.PREFIX}setup\` to setup the bot before you run other commands!`,
+            );
         }
 
         // total global count
         const [[global]] = await client.db.query(
             `SELECT SUM(total_user_count) AS total_count
-            FROM user_count`
+            FROM user_count`,
         );
 
         // total servers
         const [[servers]] = await client.db.query(
-            "SELECT COUNT(*) AS total FROM community_count"
+            "SELECT COUNT(*) AS total FROM community_count",
         );
 
         // top server normal
@@ -36,7 +37,7 @@ module.exports = {
             JOIN community_settings cs ON cc.community_id = cs.community_id
             WHERE cs.hardcore_toggle = 0
             ORDER BY cc.current_count DESC
-            LIMIT 1`
+            LIMIT 1`,
         );
 
         // top server hardcore
@@ -46,7 +47,7 @@ module.exports = {
             JOIN community_settings cs ON cc.community_id = cs.community_id
             WHERE cs.hardcore_toggle = 1
             ORDER BY cc.current_count DESC
-            LIMIT 1`
+            LIMIT 1`,
         );
 
         // top user globally
@@ -55,64 +56,66 @@ module.exports = {
              FROM user_count
              GROUP BY user_id
              ORDER BY total DESC
-             LIMIT 1`
+             LIMIT 1`,
         );
 
         // total distinct users that have ever counted
         const [[totalUsers]] = await client.db.query(
-            `SELECT COUNT(DISTINCT user_id) AS total FROM user_count;`
+            `SELECT COUNT(DISTINCT user_id) AS total FROM user_count;`,
         );
 
         // setup
         const guild = client.guilds.cache.get(topServerNormal?.community_id);
-        const guildHardcore = client.guilds.cache.get(topServerHardcore?.community_id);
+        const guildHardcore = client.guilds.cache.get(
+            topServerHardcore?.community_id,
+        );
 
         const topUserFetch = await client.users.fetch(topUser.user_id);
 
         const embed = new EmbedBuilder()
             .setTitle("🌍 Global Stats")
-            .setColor(0x4641D9)
+            .setColor(0x4641d9)
             .addFields(
                 {
                     name: "Total Counts Ever",
                     value: `${global.total_count}`,
-                    inline: true
+                    inline: true,
                 },
                 {
                     name: "Total Communities",
                     value: `${servers.total}`,
-                    inline: true
+                    inline: true,
                 },
                 {
                     name: "Total Users",
                     value: `${totalUsers.total}`,
-                    inline: true
+                    inline: true,
                 },
                 {
                     name: "Top Community Normal",
                     value: topServerNormal
                         ? `${guild ? guild.name : "Unknown"} (${topServerNormal.current_count})`
                         : "None",
-                    inline: false
+                    inline: false,
                 },
                 {
                     name: "Top Community Hardcore",
                     value: topServerHardcore
                         ? `${guildHardcore ? guildHardcore.name : "Unknown"} (${topServerHardcore.current_count})`
                         : "None",
-                    inline: false
+                    inline: false,
                 },
                 {
                     name: "Top User",
                     value: topUser
                         ? `${topUserFetch.username} (${topUser.total})`
                         : "None",
-                    inline: false
-                }
+                    inline: false,
+                },
             )
             .setFooter({ text: `Requested by ${message.author.username}` })
-            .setTimestamp( new Date() );
+            .setTimestamp(new Date());
 
         await message.send({ embeds: [embed] });
-    }
+    },
 };

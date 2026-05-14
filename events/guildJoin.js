@@ -8,10 +8,10 @@ module.exports = {
         try {
             if (!client.db) return;
 
-            /* DB UPDATE */            
+            /* DB UPDATE */
             const [rows] = await client.db.query(
                 "SELECT community_id FROM community_count WHERE community_id = ?",
-                [guild.id]
+                [guild.id],
             );
 
             if (rows.length > 0) return;
@@ -19,25 +19,26 @@ module.exports = {
             const ownerId = guild.ownerId;
             const owner = await client.users.fetch(ownerId);
 
-            console.log(`New guild joined: ${guild.name} (${guild.id}) | Owner: ${owner.username} (${ownerId})`);
-            
+            console.log(
+                `New guild joined: ${guild.name} (${guild.id}) | Owner: ${owner.username} (${ownerId})`,
+            );
+
             await client.db.query(
                 "INSERT INTO community_count (community_id, community_name, owner_id, owner_username) VALUES (?, ?, ?, ?)",
-                [guild.id, guild.name, ownerId, owner.username]
+                [guild.id, guild.name, ownerId, owner.username],
             );
 
             /* PRESENCE UPDATE */
             BOT_PRESENCE = {
                 status: "online",
                 custom_status: {
-                    text: `Counting in ${await guildSize(client)} communities!`
-                }
-            }
+                    text: `Counting in ${await guildSize(client)} communities!`,
+                },
+            };
 
-            pushPresenceUpdate(client, BOT_PRESENCE)
-
+            pushPresenceUpdate(client, BOT_PRESENCE);
         } catch (error) {
             console.error("Database error during guild join:", error);
         }
-    }
+    },
 };

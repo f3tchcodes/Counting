@@ -1,8 +1,17 @@
 // LOGS BUILDER
-async function buildLogs(client, message, type, current = null, number = null, next = null) {
+async function buildLogs(
+    client,
+    message,
+    type,
+    current = null,
+    number = null,
+    next = null,
+) {
     try {
         // basic information that is always present
-        const guildName = message.guild.name || (await client.guilds.fetch(message.guild.id)).name;
+        const guildName =
+            message.guild.name ||
+            (await client.guilds.fetch(message.guild.id)).name;
         const time = new Date().toLocaleString();
         const channelName = message.channel.name || "Unknown Channel";
 
@@ -33,7 +42,9 @@ async function buildLogs(client, message, type, current = null, number = null, n
 
 // GUILD SIZE
 async function guildSize(client) {
-    const [[guildSize]] = await client.db.query("SELECT COUNT(*) FROM community_count;")
+    const [[guildSize]] = await client.db.query(
+        "SELECT COUNT(*) FROM community_count;",
+    );
     return guildSize["COUNT(*)"];
 }
 
@@ -41,8 +52,8 @@ async function guildSize(client) {
 async function resetCount(client, guildId) {
     await client.db.query(
         "UPDATE community_count SET current_count = 0, last_count_userid = NULL WHERE community_id = ?",
-        [guildId]
+        [guildId],
     );
 }
 
-module.exports = { guildSize, buildLogs, resetCount }
+module.exports = { guildSize, buildLogs, resetCount };

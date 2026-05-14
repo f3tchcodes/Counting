@@ -4,22 +4,21 @@ module.exports = {
     name: "help",
 
     async execute(message) {
-
         const client = message.client;
 
         // get prefix
         const [rows] = await client.db.query(
             "SELECT prefix FROM community_settings WHERE community_id = ?",
-            [message.guild.id]
+            [message.guild.id],
         );
 
         const prefix = rows[0]?.prefix || ".";
 
         const embed = new EmbedBuilder()
             .setTitle("📖 Counting Bot Help")
-            .setColor(0x4641D9)
+            .setColor(0x4641d9)
             .setDescription(
-`🚀 **Getting Started**
+                `🚀 **Getting Started**
 Before anything, you MUST setup the bot:
 
 \`${prefix}setup #channel\`
@@ -93,13 +92,15 @@ Show this help menu
 • Hardcore mode resets on mistakes (Optional)
 • Leaderboards require enabling in settings  
 
-Good luck climbing the leaderboard 🚀`
-            ).addFields({
+Good luck climbing the leaderboard 🚀`,
+            )
+            .addFields({
                 name: "🔗 Links",
-                value: "[Invite me](https://web.fluxer.app/oauth2/authorize?client_id=1484113258352640042&scope=bot&permissions=76864)  •  [Support server](https://fluxer.gg/s3MEFBfB) • [GitHub](https://github.com/f3tchcodes/Counting)"
-            }).setFooter({ text: "Counting Bot • Made by f3tch#0001" })
+                value: "[Invite me](https://web.fluxer.app/oauth2/authorize?client_id=1484113258352640042&scope=bot&permissions=76864)  •  [Support server](https://fluxer.gg/s3MEFBfB) • [GitHub](https://github.com/f3tchcodes/Counting)",
+            })
+            .setFooter({ text: "Counting Bot • Made by f3tch#0001" })
             .setTimestamp(new Date());
 
         await message.send({ embeds: [embed] });
-    }
+    },
 };

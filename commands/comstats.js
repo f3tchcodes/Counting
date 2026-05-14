@@ -8,21 +8,22 @@ module.exports = {
         const communityId = message.guild.id;
 
         try {
-
             // community data
             const [[community]] = await client.db.query(
                 "SELECT * FROM community_count WHERE community_id = ?",
-                [communityId]
+                [communityId],
             );
 
             // community settings
             const [[settings]] = await client.db.query(
                 "SELECT * FROM community_settings WHERE community_id = ?",
-                [communityId]
+                [communityId],
             );
 
-            if (!settings){
-                return message.send(`Use \`${settings?.prefix ?? process.env.PREFIX}setup\` to setup the bot before you run other commands!`)
+            if (!settings) {
+                return message.send(
+                    `Use \`${settings?.prefix ?? process.env.PREFIX}setup\` to setup the bot before you run other commands!`,
+                );
             }
 
             // top user in this community
@@ -32,7 +33,7 @@ module.exports = {
                  WHERE community_id = ?
                  ORDER BY total_user_count DESC
                  LIMIT 1`,
-                [communityId]
+                [communityId],
             );
 
             // total contributions in server
@@ -40,7 +41,7 @@ module.exports = {
                 `SELECT SUM(total_user_count) AS total
                  FROM user_count
                  WHERE community_id = ?`,
-                [communityId]
+                [communityId],
             );
 
             // server rank globally
@@ -48,43 +49,43 @@ module.exports = {
                 `SELECT COUNT(*) + 1 AS server_rank
                  FROM community_count
                  WHERE current_count > ?`,
-                [community.current_count]
+                [community.current_count],
             );
 
             const topUserFetch = await client.users.fetch(topUser.user_id);
-            
+
             const embed = new EmbedBuilder()
                 .setTitle(`📊 ${message.guild.name} Stats`)
-                .setColor(0x4641D9)
+                .setColor(0x4641d9)
                 .addFields(
                     {
                         name: "Current Count",
                         value: `${community.current_count}`,
-                        inline: true
+                        inline: true,
                     },
                     {
                         name: "Last Counter",
                         value: community.last_count_userid
                             ? `<@${community.last_count_userid}>`
                             : "Unavailable",
-                        inline: true
+                        inline: true,
                     },
                     {
                         name: "Top User",
                         value: topUser
                             ? `${topUserFetch.username} (${topUser.total_user_count})`
                             : "None",
-                        inline: true
+                        inline: true,
                     },
                     {
                         name: "Server Rank",
                         value: `#${rankRow.server_rank}`,
-                        inline: true
+                        inline: true,
                     },
                     {
                         name: "Total Contributions",
                         value: `${total.total || 0}`,
-                        inline: true
+                        inline: true,
                     },
                     // Settings
                     {
@@ -92,41 +93,49 @@ module.exports = {
                         value: settings.channel_id
                             ? `<#${settings.channel_id}>`
                             : "Not set",
-                        inline: true
+                        inline: true,
                     },
                     {
                         name: "Arithmetic Mode",
-                        value: settings.arithmetic_toggle ? "✅ Enabled" : "❌ Disabled",
-                        inline: true
+                        value: settings.arithmetic_toggle
+                            ? "✅ Enabled"
+                            : "❌ Disabled",
+                        inline: true,
                     },
                     {
                         name: "Leaderboard",
-                        value: settings.leaderboard_toggle ? "✅ Enabled" : "❌ Disabled",
-                        inline: true
+                        value: settings.leaderboard_toggle
+                            ? "✅ Enabled"
+                            : "❌ Disabled",
+                        inline: true,
                     },
                     {
                         name: "Numbers Only Mode",
-                        value: settings.numbers_only_toggle ? "✅ Enabled" : "❌ Disabled",
-                        inline: true
+                        value: settings.numbers_only_toggle
+                            ? "✅ Enabled"
+                            : "❌ Disabled",
+                        inline: true,
                     },
                     {
                         name: "Hardcore Mode",
-                        value: settings.hardcore_toggle ? "🔥 Enabled" : "❌ Disabled",
-                        inline: true
+                        value: settings.hardcore_toggle
+                            ? "🔥 Enabled"
+                            : "❌ Disabled",
+                        inline: true,
                     },
                     {
                         name: "Prefix",
                         value: settings?.prefix ?? process.env.PREFIX,
-                        inline: true
-                    }
+                        inline: true,
+                    },
                 )
                 .setFooter({ text: `Community ID: ${communityId}` })
-                .setTimestamp( new Date() );
+                .setTimestamp(new Date());
 
             await message.send({ embeds: [embed] });
-        } catch(err) {
+        } catch (err) {
             console.error("comstats Error:", err);
             await message.send("Error occurred, please try again later.");
         }
-    }
+    },
 };

@@ -4,8 +4,8 @@ async function shutdown() {
     try {
         pm2.connect((err) => {
             if (err) {
-                console.log(err)
-                process.exit(1)
+                console.log(err);
+                process.exit(1);
             }
 
             try {
@@ -16,9 +16,9 @@ async function shutdown() {
                     pm2.disconnect();
                 });
             } catch (err) {
-                console.log("no worries brother, i caught it!")
+                console.log("no worries brother, i caught it!");
                 console.log(err);
-                process.exit(1)
+                process.exit(1);
             }
         });
     } catch (err) {

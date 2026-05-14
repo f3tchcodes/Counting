@@ -2,35 +2,39 @@ require("dotenv").config();
 const { Events } = require("@fluxerjs/core");
 
 module.exports = {
-  name: Events.MessageCreate,
-  async execute(client, message) {
-    if (!client.db) return
-    if (!message.guild) return;
+    name: Events.MessageCreate,
+    async execute(client, message) {
+        if (!client.db) return;
+        if (!message.guild) return;
 
-    const [rows] = await client.db.query(
-        "SELECT * FROM community_settings WHERE community_id = ?",
-        [message.guild.id]
-    );
+        const [rows] = await client.db.query(
+            "SELECT * FROM community_settings WHERE community_id = ?",
+            [message.guild.id],
+        );
 
-    const settings = rows[0];
-    const prefix = settings?.prefix ?? process.env.PREFIX;
+        const settings = rows[0];
+        const prefix = settings?.prefix ?? process.env.PREFIX;
 
-    if (!message.content.startsWith(prefix)) return;
+        if (!message.content.startsWith(prefix)) return;
 
-    const A_args = message.content.slice(prefix.length).trim()
-    const argsS = A_args.split(/(?<=\s)/);
-    argsS.shift();
-    const args = A_args.split(/\s+/);
-    const commandName = args.shift().toLowerCase();
+        const A_args = message.content.slice(prefix.length).trim();
+        const argsS = A_args.split(/(?<=\s)/);
+        argsS.shift();
+        const args = A_args.split(/\s+/);
+        const commandName = args.shift().toLowerCase();
 
-    const command = client.commands.get(commandName)
-    if (!command) return;
+        const command = client.commands.get(commandName);
+        if (!command) return;
 
-    try {
-        await command.execute(message, args, argsS, client);
-    } catch (err) {
-        await message.send("Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!").catch(console.log);
-        console.log(err);
-    }
-  }
-}
+        try {
+            await command.execute(message, args, argsS, client);
+        } catch (err) {
+            await message
+                .send(
+                    "Error occured, check bot's permissions (common issue is embed permission) or ask help in the support community!",
+                )
+                .catch(console.log);
+            console.log(err);
+        }
+    },
+};
