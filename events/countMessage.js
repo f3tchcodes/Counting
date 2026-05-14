@@ -26,20 +26,20 @@ module.exports = {
 
         // create a lock
         const lockKey = `lock:count:${message.guild.id}`;
-        const lockValue = Date.now() + 5000; // after 5 seconds, redis automatically deletes the key and let's the code go through
+        const lockValue = Date.now() + 10000; // after 5 seconds, redis automatically deletes the key and let's the code go through
         
         // set the lock, if it exists (meaning a query is still out there and hasn't updated the count)
         // then try again 10 times every 300ms for the previous query to go through completely
         let acquired = false;
-        for (let i = 0; i < 10; i++) {
-            acquired = await client.redis.set(lockKey, lockValue, "PX", 5000, "NX");
+        for (let i = 0; i < 30; i++) {
+            acquired = await client.redis.set(lockKey, lockValue, "PX", 10000, "NX");
             if (acquired) break;
             buildLogs(client, message, "SETTLING DOUBLE COUNT").catch(err => console.log(err));
             await setTimeout(300);
         }
 
         // if key is not acquired after 6 seconds of retrying
-        if (!acquired) return await buildLogs(client, message, "KEY NOT ACQUIRED AFTER 6 SECONDS");
+        if (!acquired) return await buildLogs(client, message, "KEY NOT ACQUIRED AFTER 9 SECONDS");
 
         try {
             if (!settings || message.channel.id !== settings.channel_id) return;
