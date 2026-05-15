@@ -29,24 +29,24 @@ module.exports = {
 
         // create a lock
         const lockKey = `lock:count:${message.guild.id}`;
-        const lockValue = Date.now() + 10000; // after 5 seconds, redis automatically deletes the key and let's the code go through
+        const lockValue = Date.now() + 30000; // after 30 seconds, redis automatically deletes the key and let's the code go through
 
         // set the lock, if it exists (meaning a query is still out there and hasn't updated the count)
-        // then try again 10 times every 300ms for the previous query to go through completely
+        // then try again 90 times every 300ms for the previous query to go through completely
         let acquired = false;
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 140; i++) {
             acquired = await client.redis.set(
                 lockKey,
                 lockValue,
                 "PX",
-                10000,
+                30000,
                 "NX",
             );
             if (acquired) break;
             buildLogs(client, message, "SETTLING DOUBLE COUNT").catch((err) =>
                 console.log(err),
             );
-            await setTimeoutPromise(300);
+            await setTimeoutPromise(200);
         }
 
         // if key is not acquired after 9 seconds of retrying
