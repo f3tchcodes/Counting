@@ -2,7 +2,7 @@ require("dotenv").config();
 const { Events } = require("@fluxerjs/core");
 const math = require("mathjs");
 const { buildLogs, resetCount } = require("../utils/common");
-const { setTimeout } = require("node:timers/promises");
+const { setTimeout: setTimeoutPromise } = require("node:timers/promises");
 
 module.exports = {
     name: Events.MessageCreate,
@@ -46,7 +46,7 @@ module.exports = {
             buildLogs(client, message, "SETTLING DOUBLE COUNT").catch((err) =>
                 console.log(err),
             );
-            await setTimeout(300);
+            await setTimeoutPromise(300);
         }
 
         // if key is not acquired after 9 seconds of retrying
@@ -88,7 +88,7 @@ module.exports = {
                     if (settings.hardcore_toggle) {
                         await resetCount(client, message.guild.id);
                         await message.reply(
-                            `❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`,
+                            `:x: **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`,
                         );
                         return await buildLogs(
                             client,
@@ -110,11 +110,23 @@ module.exports = {
                 if (settings.hardcore_toggle) {
                     await resetCount(client, message.guild.id);
                     return await message.reply(
-                        "❌ **COUNT RESET!** You cannot count twice in a row. Start from 1.",
+                        ":x: **COUNT RESET!** You cannot count twice in a row. Start from 1.",
                     );
                 }
+                // tell the user why it's deleted
                 client.deletedByBot.add(message.id);
-                return await message.delete().catch(() => {});
+                const warn = await message.reply(
+                    `:warning: The same user cannot count twice in a row!`,
+                );
+
+                const promise = new Promise((resolve) => {
+                    setTimeout(resolve, 3000);
+                }).then(async () => {
+                    await warn.delete().catch(() => {})
+                    await message.delete().catch(() => {});
+                });  // delete after letting the user know
+
+                return;
             }
 
             // check if the number is wrong
@@ -122,7 +134,7 @@ module.exports = {
                 if (settings.hardcore_toggle) {
                     await resetCount(client, message.guild.id);
                     await message.reply(
-                        `❌ **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`,
+                        `:x: **WRONG NUMBER!** ${message.author.username} messed up at **${current_count}**. Resetting to 1.`,
                     );
                     return await buildLogs(
                         client,
@@ -132,15 +144,22 @@ module.exports = {
                         content,
                         next_count,
                     );
-                } else {
-                    // tell the user why it's deleted
-                    const warn = await message.reply(
-                        `❌ Wrong number! Next count is **${next_count}**.`,
-                    );
-                    setTimeout(() => warn.delete().catch(() => {}), 3000); // delete after letting the user know
-                    client.deletedByBot.add(message.id);
-                    return await message.delete().catch(() => {});
                 }
+                // tell the user why it's deleted
+                client.deletedByBot.add(message.id);
+                const warn = await message.reply(
+                    `:x: Wrong number! Next count is **${next_count}**.`,
+                );
+
+                const promise = new Promise((resolve) => {
+                    setTimeout(resolve, 3000);
+                }).then(async () => {
+                    await warn.delete().catch(() => {})
+                    await message.delete().catch(() => {});
+                });  // delete after letting the user know
+
+                return;
+                
             }
 
             // proceed with valid count
@@ -184,7 +203,7 @@ module.exports = {
                 );
 
                 await conn.commit();
-                await message.react("✅").catch(() => {});
+                await message.react(":white_check_mark:").catch(() => {});
             } catch (err) {
                 await conn.rollback();
                 throw err;
