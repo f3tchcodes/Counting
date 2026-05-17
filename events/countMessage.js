@@ -204,7 +204,7 @@ module.exports = {
 
                 await conn.commit();
                 await message.react(":white_check_mark:").catch(() => {});
-                client.messageCache.add(message.id);
+                client.messageCache.set(message.id, message.content);
             } catch (err) {
                 await conn.rollback();
                 throw err;
